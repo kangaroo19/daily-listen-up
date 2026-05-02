@@ -1,0 +1,5 @@
+dist
+node_modules
+TERMS_OF_SERVICE.md
+docs/exec-plans/active/**
+example/**

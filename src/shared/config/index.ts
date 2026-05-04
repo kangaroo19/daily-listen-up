@@ -28,7 +28,7 @@ export function loadAppConfig(): AppRuntimeConfig {
       projectId: readRequiredEnv(env, requiredEnv.firebaseProjectId),
       appId: readRequiredEnv(env, requiredEnv.firebaseAppId),
     },
-    apiBaseUrl: readRequiredEnv(env, requiredEnv.apiBaseUrl),
+    apiBaseUrl: readOptionalEnv(env, requiredEnv.apiBaseUrl) ?? '',
   };
 }
 
@@ -37,6 +37,16 @@ function readRequiredEnv(env: ImportMetaEnv, key: string): string {
 
   if (typeof value !== 'string' || value.trim() === '') {
     throw new Error(`필수 환경변수 ${key}가 설정되지 않았어요.`);
+  }
+
+  return value;
+}
+
+function readOptionalEnv(env: ImportMetaEnv, key: string): string | undefined {
+  const value = env[key];
+
+  if (typeof value !== 'string' || value.trim() === '') {
+    return undefined;
   }
 
   return value;

@@ -5,10 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
+    "backend:build": "tsc -p tsconfig.server.json",
+    "backend:dev": "npm run backend:build && npm run backend:start",
+    "backend:start": "node server-dist/server/src/local-server.js",
     "build": "vite build",
+    "build:frontend": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "typecheck:backend": "tsc -p tsconfig.server.json --noEmit",
+    "typecheck:frontend": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
     "format": "prettier . --write",
     "format:check": "prettier . --check"
   },
@@ -23,6 +29,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
+    "@types/node": "^25.6.0",
     "@types/react": "^18.3.21",
     "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^4.4.1",

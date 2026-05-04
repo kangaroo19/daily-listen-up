@@ -1,4 +1,4 @@
-# 19. MVP 완료 기준 체크리스트
+# 20. MVP 완료 기준 체크리스트
 
 ## 목적
 
@@ -70,7 +70,7 @@
 
 ## Git 전략
 
-- 최신 `dev` 기준에서 `codex/19-mvp-completion-checklist` 형식의 작업 브랜치를 만든다.
+- 최신 `dev` 기준에서 `codex/20-mvp-completion-checklist` 형식의 작업 브랜치를 만든다.
 - 의미 있는 기능 단위마다 커밋한다.
 - 작업 완료 후 같은 번호의 completed 문서를 작성한다.
 - 작업 브랜치에서 `dev`로 PR을 보낸다.

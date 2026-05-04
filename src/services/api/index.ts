@@ -2,11 +2,32 @@ import {
   API_ENDPOINTS,
   type ApiErrorResponse,
   type HealthResponse,
+  type SessionResponse,
+  type SubmissionResultRequest,
+  type SubmissionResultResponse,
+  type SubmitQuizRequest,
+  type SubmitQuizResponse,
+  type TodayProgressResponse,
+  type TossLoginRequest,
+  type TossLoginResponse,
+  type TossPointRewardRequest,
+  type TossPointRewardResponse,
 } from '../../../shared/api/contracts';
 
 export type ApiClient = {
   request<TResponse>(path: string, init?: RequestInit): Promise<TResponse>;
   getHealth(): Promise<HealthResponse>;
+  loginWithToss(request: TossLoginRequest): Promise<TossLoginResponse>;
+  getSession(): Promise<SessionResponse>;
+  getTodayProgress(): Promise<TodayProgressResponse>;
+  submitQuiz(request: SubmitQuizRequest): Promise<SubmitQuizResponse>;
+  getSubmissionResult(
+    submissionId: string,
+    request?: SubmissionResultRequest,
+  ): Promise<SubmissionResultResponse>;
+  requestTossPoint(
+    request: TossPointRewardRequest,
+  ): Promise<TossPointRewardResponse>;
 };
 
 type CreateApiClientOptions = {
@@ -17,8 +38,12 @@ export type ApiFailureKind =
   | 'network'
   | 'parse'
   | 'auth_required'
+  | 'forbidden'
+  | 'not_found'
   | 'validation'
+  | 'conflict'
   | 'not_implemented'
+  | 'external_service'
   | 'server'
   | 'unknown';
 
@@ -35,6 +60,7 @@ export function createApiClient({
 
     try {
       response = await fetch(buildApiUrl(normalizedBaseUrl, path), {
+        credentials: 'same-origin',
         ...init,
         headers: {
           'Content-Type': 'application/json',
@@ -67,6 +93,49 @@ export function createApiClient({
       return request<HealthResponse>(API_ENDPOINTS.health.path, {
         method: API_ENDPOINTS.health.method,
       });
+    },
+    loginWithToss(loginRequest) {
+      return request<TossLoginResponse>(API_ENDPOINTS.tossLogin.path, {
+        method: API_ENDPOINTS.tossLogin.method,
+        body: JSON.stringify(loginRequest),
+      });
+    },
+    getSession() {
+      return request<SessionResponse>(API_ENDPOINTS.session.path, {
+        method: API_ENDPOINTS.session.method,
+      });
+    },
+    getTodayProgress() {
+      return request<TodayProgressResponse>(API_ENDPOINTS.meToday.path, {
+        method: API_ENDPOINTS.meToday.method,
+      });
+    },
+    submitQuiz(submitRequest) {
+      return request<SubmitQuizResponse>(API_ENDPOINTS.submitQuiz.path, {
+        method: API_ENDPOINTS.submitQuiz.method,
+        body: JSON.stringify(submitRequest),
+      });
+    },
+    getSubmissionResult(submissionId, resultRequest = {}) {
+      return request<SubmissionResultResponse>(
+        API_ENDPOINTS.submissionResult.path.replace(
+          ':submissionId',
+          encodeURIComponent(submissionId),
+        ),
+        {
+          method: API_ENDPOINTS.submissionResult.method,
+          body: JSON.stringify(resultRequest),
+        },
+      );
+    },
+    requestTossPoint(rewardRequest) {
+      return request<TossPointRewardResponse>(
+        API_ENDPOINTS.tossPointReward.path,
+        {
+          method: API_ENDPOINTS.tossPointReward.method,
+          body: JSON.stringify(rewardRequest),
+        },
+      );
     },
   };
 }
@@ -118,16 +187,32 @@ async function readErrorBody(
 }
 
 function classifyFailure(status: number): ApiFailureKind {
-  if (status === 401 || status === 403) {
+  if (status === 401) {
     return 'auth_required';
+  }
+
+  if (status === 403) {
+    return 'forbidden';
+  }
+
+  if (status === 404) {
+    return 'not_found';
   }
 
   if (status === 400 || status === 422) {
     return 'validation';
   }
 
+  if (status === 409) {
+    return 'conflict';
+  }
+
   if (status === 501) {
     return 'not_implemented';
+  }
+
+  if (status === 502) {
+    return 'external_service';
   }
 
   if (status >= 500) {

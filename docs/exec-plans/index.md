@@ -61,11 +61,11 @@ MVP는 다음 3개 주요 페이지를 기준으로 구현한다.
 
 - `active` 문서는 번호와 작업명을 함께 쓴다.
   - 예: `active/01-apps-in-toss-setup.md`
-  - 예: `active/02-firebase-functions-backend.md`
+  - 예: `active/02-backend-foundation.md`
   - 예: `active/03-backend-api.md`
 - `completed` 문서는 같은 번호에 `result`를 붙인다.
   - 예: `completed/01-apps-in-toss-setup-result.md`
-  - 예: `completed/02-firebase-functions-backend-result.md`
+  - 예: `completed/02-backend-foundation-result.md`
   - 예: `completed/03-backend-api-result.md`
 
 ## 전체 작업 목록
@@ -73,42 +73,42 @@ MVP는 다음 3개 주요 페이지를 기준으로 구현한다.
 1. Apps in Toss 기본 앱 구조 세팅
    - 파일명: `active/01-apps-in-toss-setup.md`
 2. 프로젝트 내부 백엔드 기반 세팅
-   - 파일명: `active/02-firebase-functions-backend.md`
+   - 파일명: `active/02-backend-foundation.md`
 3. 서버 API 구현
    - 파일명: `active/03-backend-api.md`
 4. 토스 로그인 기능 구현
-   - 파일명: `active/03-toss-login.md`
+   - 파일명: `active/04-toss-login.md`
 5. 사용자 식별 및 진행 상태 기준 정의
-   - 파일명: `active/04-user-progress-state.md`
+   - 파일명: `active/05-user-progress-state.md`
 6. Firebase 문제 데이터 조회 구현
-   - 파일명: `active/05-firebase-quiz-query.md`
+   - 파일명: `active/06-firebase-quiz-query.md`
 7. 오늘의 문제 진입 화면 구현
-   - 파일명: `active/06-today-quiz-entry.md`
+   - 파일명: `active/07-today-quiz-entry.md`
 8. 오디오 재생 UI 구현
-   - 파일명: `active/07-audio-player-ui.md`
+   - 파일명: `active/08-audio-player-ui.md`
 9. 객관식 퀴즈 풀이 UI 구현
-   - 파일명: `active/08-multiple-choice-quiz-ui.md`
+   - 파일명: `active/09-multiple-choice-quiz-ui.md`
 10. 답안 제출 흐름 구현
-   - 파일명: `active/09-answer-submit-flow.md`
+   - 파일명: `active/10-answer-submit-flow.md`
 11. 토스애즈 전면형 광고 연동
-    - 파일명: `active/10-toss-ads-interstitial.md`
+    - 파일명: `active/11-toss-ads-interstitial.md`
 12. 정답 확인 및 결과 분기 구현
-    - 파일명: `active/11-answer-result-branch.md`
+    - 파일명: `active/12-answer-result-branch.md`
 13. 정답 시 토스 포인트 지급 요청 연동
-    - 파일명: `active/12-point-reward-request.md`
+    - 파일명: `active/13-point-reward-request.md`
 14. 오답 시 보상형 광고 기반 재도전 구현
-    - 파일명: `active/13-rewarded-ad-retry.md`
+    - 파일명: `active/14-rewarded-ad-retry.md`
 15. 오늘 학습 완료 화면 구현
-    - 파일명: `active/14-today-complete-screen.md`
+    - 파일명: `active/15-today-complete-screen.md`
 16. 당일 중복 학습 및 중복 보상 방지 처리
-    - 파일명: `active/15-daily-duplicate-guard.md`
+    - 파일명: `active/16-daily-duplicate-guard.md`
 17. 오늘의 문제 없음 상태 구현
-    - 파일명: `active/16-empty-today-quiz-state.md`
+    - 파일명: `active/17-empty-today-quiz-state.md`
 18. 전체 화면 UI 정리 및 TDS 스타일 적용
-    - 파일명: `active/17-tds-ui-polish.md`
+    - 파일명: `active/18-tds-ui-polish.md`
 19. MVP 테스트 시나리오 작성
-    - 파일명: `active/18-mvp-test-scenarios.md`
+    - 파일명: `active/19-mvp-test-scenarios.md`
 20. 빌드 및 Apps in Toss 실행 검증
-    - 파일명: `active/19-build-and-toss-verification.md`
+    - 파일명: `active/20-build-and-toss-verification.md`
 21. MVP 완료 기준 체크리스트
-    - 파일명: `active/20-mvp-completion-checklist.md`
+    - 파일명: `active/21-mvp-completion-checklist.md`

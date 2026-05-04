@@ -105,7 +105,7 @@
 
 - 최신 `dev` 기준에서 `codex/02-backend-foundation` 형식의 작업 브랜치를 만든다.
 - 백엔드 기반 설정, API 계약, 프론트 API 어댑터 경계는 가능한 작은 커밋 단위로 나눈다.
-- 작업 완료 후 `docs/exec-plans/completed/02-firebase-functions-backend-result.md`를 작성한다.
+- 작업 완료 후 `docs/exec-plans/completed/02-backend-foundation-result.md`를 작성한다.
 - 작업 브랜치에서 `dev`로 PR을 보낸다.
 - PR 설명에는 참조한 active 문서, 작성한 completed 문서, 실행한 build/typecheck/emulator 검증 결과를 함께 적는다.
 - 백엔드 런타임, Firebase Functions 이전 시점, secret 등록 방식이 미정이면 PR에 미해결 결정사항으로 남긴다.
@@ -113,8 +113,8 @@
 ## 다음 작업과의 연결
 
 - 3번 서버 API 구현 작업은 이번에 만든 API 계약과 백엔드 기반 위에 실제 서버 API를 추가한다.
-- 3번 토스 로그인 기능 구현 작업은 서버 API 구현 이후 `POST /api/auth/toss-login` 계약과 API 어댑터 경계를 사용해 Toss 로그인 흐름을 연결한다.
-- 4번 작업은 서버 세션 확인 계약을 바탕으로 사용자 식별 및 진행 상태 기준을 정의한다.
-- 9번 작업은 이번에 예약한 `POST /api/quiz/submit` 계약을 실제 답안 제출 API로 확장한다.
-- 12번 작업은 이번에 예약한 `POST /api/rewards/toss-point` 계약을 실제 포인트 지급 요청 흐름으로 확장한다.
-- 15번 작업은 중복 학습과 중복 보상 방지를 위해 멱등 처리와 서버 저장 정책을 추가한다.
+- 4번 토스 로그인 기능 구현 작업은 서버 API 구현 이후 `POST /api/auth/toss-login` 계약과 API 어댑터 경계를 사용해 Toss 로그인 흐름을 연결한다.
+- 5번 작업은 서버 세션 확인 계약을 바탕으로 사용자 식별 및 진행 상태 기준을 정의한다.
+- 10번 작업은 이번에 예약한 `POST /api/quiz/submit` 계약을 실제 답안 제출 API로 확장한다.
+- 13번 작업은 이번에 예약한 `POST /api/rewards/toss-point` 계약을 실제 포인트 지급 요청 흐름으로 확장한다.
+- 16번 작업은 중복 학습과 중복 보상 방지를 위해 멱등 처리와 서버 저장 정책을 추가한다.

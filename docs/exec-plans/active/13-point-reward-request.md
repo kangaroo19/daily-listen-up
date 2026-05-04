@@ -1,4 +1,4 @@
-# 12. 정답 시 토스 포인트 지급 요청 연동
+# 13. 정답 시 토스 포인트 지급 요청 연동
 
 ## 목적
 
@@ -8,7 +8,7 @@
 
 ## 구현 범위
 
-- 11번 작업에서 `correct`와 `nextStep: 'point_reward'`로 분기된 경우에만 진입한다.
+- 12번 작업에서 `correct`와 `nextStep: 'point_reward'`로 분기된 경우에만 진입한다.
 - `submissionId`와 `quizDate`를 기준으로 포인트 지급 요청 API를 호출한다.
 - 지급 요청 중, 지급 완료, 이미 지급됨, 지급 대기, 지급 실패 상태를 구분한다.
 - 서버 응답의 `promotionStatus`, `isPromotionGranted`, `promotionGrantKey`를 사용자 진행 상태와 연결한다.
@@ -78,7 +78,7 @@
 
 ## Git 전략
 
-- 최신 `dev` 기준에서 `codex/12-point-reward-request` 형식의 작업 브랜치를 만든다.
+- 최신 `dev` 기준에서 `codex/13-point-reward-request` 형식의 작업 브랜치를 만든다.
 - 의미 있는 기능 단위마다 커밋한다.
 - 작업 완료 후 같은 번호의 completed 문서를 작성한다.
 - 작업 브랜치에서 `dev`로 PR을 보낸다.
@@ -87,6 +87,6 @@
 
 ## 다음 작업과의 연결
 
-- 14번 작업은 `granted` 또는 `already_granted` 상태를 이어받아 오늘 학습 완료 화면을 보여준다.
-- 15번 작업은 같은 `quizDate`에서 지급 요청이 반복되지 않도록 중복 보상 방지 가드를 정리한다.
-- 11번 작업은 정답 결과와 `submissionId`, `promotionAmount`를 이 작업으로 전달한다.
+- 15번 작업은 `granted` 또는 `already_granted` 상태를 이어받아 오늘 학습 완료 화면을 보여준다.
+- 16번 작업은 같은 `quizDate`에서 지급 요청이 반복되지 않도록 중복 보상 방지 가드를 정리한다.
+- 12번 작업은 정답 결과와 `submissionId`, `promotionAmount`를 이 작업으로 전달한다.

@@ -101,7 +101,7 @@
   - 요청 본문은 `{ quizDate: string; quizId: string }`를 기준으로 한다.
   - 서버는 해당 날짜 정답 상태, 중복 지급 여부, 보상 요청 가능 여부를 확인한다.
   - 성공 응답은 `{ promotionStatus: 'requested' | 'granted' | 'already_granted' | 'failed'; isPromotionGranted: boolean }`를 기준으로 한다.
-  - 실제 Toss promotion 지급 실행과 결과 조회 고도화는 12번 포인트 지급 작업에서 확장한다.
+  - 실제 Toss promotion 지급 실행과 결과 조회 고도화는 13번 포인트 지급 작업에서 확장한다.
 
 ## 공통 오류 shape
 
@@ -163,7 +163,6 @@
 ## Git 전략
 
 - 최신 `dev` 기준에서 `codex/03-backend-api` 형식의 작업 브랜치를 만든다.
-- 현재 목차에 `03-toss-login.md`가 이미 있으므로, 번호 중복 정리는 별도 문서 정리 작업 또는 PR 설명에서 명시한다.
 - API 계약, Toss 로그인 서버 처리, 세션 처리, 답안 제출, 결과 확인, 보상 요청은 가능한 분리된 커밋으로 남긴다.
 - 작업 범위 밖 UI 구현이나 Toss Ads SDK 구현은 같은 브랜치에 포함하지 않는다.
 - 작업 완료 후 `docs/exec-plans/completed/03-backend-api-result.md`를 작성한다.

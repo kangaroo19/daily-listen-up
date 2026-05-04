@@ -1,26 +1,29 @@
-# 2. Firebase Functions 백엔드 기반 세팅
+# 2. 프로젝트 내부 백엔드 기반 세팅
 
 ## 목적
 
-토스 로그인 토큰 교환, 사용자 식별, 정답 검증, 포인트 지급, 중복 요청 방지처럼 서버 신뢰가 필요한 작업을 이후 작업에서 안전하게 구현할 수 있는 Firebase Functions 백엔드 기반을 만든다.
+토스 로그인 토큰 교환, 사용자 식별, 정답 검증, 포인트 지급, 중복 요청 방지처럼 서버 신뢰가 필요한 작업을 이후 작업에서 안전하게 구현할 수 있는 프로젝트 내부 백엔드 기반을 만든다.
 
-이번 작업은 실제 기능 API를 완성하는 작업이 아니라, 프로젝트 내부에 백엔드 코드 위치와 실행 방식, 프론트 API 어댑터 경계, 비밀값 관리 기준을 마련하는 작업이다.
+이번 작업은 실제 기능 API를 완성하는 작업이 아니라, 프로젝트 내부에 백엔드 코드 위치와 실행 방식, 프론트 API 어댑터 경계, 비밀값 관리 기준을 마련하는 작업이다. Firebase Functions는 현재 구현 전제가 아니라, 개발 후반에 프로젝트 내부 백엔드 코드를 이전할 수 있는 배포 후보로 둔다.
 
 ## 구현 범위
 
-- 프로젝트 내부에 Firebase Functions 작업 공간을 만든다.
-- TypeScript 기반 Functions 개발 환경을 구성한다.
-- Functions 빌드, 타입체크, 로컬 에뮬레이터 실행 기준을 준비한다.
-- Firebase Admin SDK 초기화 위치를 만든다.
-- Firestore 서버 접근 위치를 만든다.
+- 프로젝트 내부에 백엔드 코드 작업 공간을 만든다.
+- TypeScript 기반 백엔드 개발 환경을 구성한다.
+- 백엔드 빌드, 타입체크, 로컬 실행 기준을 준비한다.
+- Firebase Admin SDK가 필요해질 경우를 대비해 초기화 위치를 정한다.
+- Firestore 서버 접근이 필요해질 경우를 대비해 접근 위치를 정한다.
 - Toss 서버 API 호출에 필요한 서버 전용 설정과 비밀값 접근 위치를 만든다.
 - 프론트엔드에서 호출할 서버 API 공통 경계를 정의한다.
 - 요청/응답 타입 또는 계약을 프론트와 백엔드가 같은 의미로 사용할 수 있게 정리한다.
 - 공통 HTTP 응답, 오류 응답, 로깅 기준을 만든다.
-- 최소 헬스체크 API만 구현해 프론트와 Functions 연결 상태를 검증한다.
-- Firebase Hosting 또는 로컬 개발 환경에서 `/api/*` 요청이 Functions로 전달되는 기준을 잡는다.
+- 최소 헬스체크 API만 구현해 프론트와 백엔드 연결 상태를 검증한다.
+- 로컬 개발 환경에서 `/api/*` 요청이 프로젝트 내부 백엔드로 전달되는 기준을 잡는다.
+- 개발 후반 Firebase Functions 이전을 고려해 라우팅과 비즈니스 로직이 특정 런타임에 강하게 결합되지 않게 한다.
 
 ## 제외 범위
+
+아래 항목은 MVP 제외가 아니라 3번 서버 API 구현 작업에서 다룬다.
 
 - Toss 로그인 API 실제 구현
 - Toss authorization code 토큰 교환
@@ -39,9 +42,10 @@
 
 ## 구현 기준
 
-- Functions 코드는 이 레포 안에서 관리한다.
-- 백엔드는 Firebase Functions + TypeScript를 기준으로 한다.
-- 프론트엔드는 Functions 내부 구현 파일을 직접 import하지 않는다.
+- 백엔드 코드는 이 레포 안에서 관리한다.
+- 백엔드는 TypeScript를 기준으로 한다.
+- Express, Nest, Firebase Functions 같은 구체 런타임은 이번 문서에서 임의로 확정하지 않는다.
+- 프론트엔드는 백엔드 내부 구현 파일을 직접 import하지 않는다.
 - 화면 컴포넌트는 `fetch`를 직접 호출하지 않고 `src/services/api` 또는 같은 역할의 API 어댑터만 사용한다.
 - API 어댑터는 endpoint, method, request body, response body, error shape를 감싼다.
 - 이번 작업에서 실제 동작 API는 `GET /api/health`만 구현한다.
@@ -54,16 +58,17 @@
 - 예약 API는 실제 성공 응답을 흉내 내지 않는다.
 - 아직 구현하지 않은 API가 필요하면 명확한 `501 not_implemented` 응답 또는 미등록 상태로 둔다.
 - 서버 오류 응답은 `{ error: { code: string; message: string } }` 형태를 기준으로 한다.
-- 클라이언트에 노출되면 안 되는 값은 Functions 환경변수 또는 Firebase secret 기준으로 둔다.
+- 클라이언트에 노출되면 안 되는 값은 서버 전용 환경변수 또는 secret 관리 기준으로 둔다.
 - Toss client secret, promotion secret, private key류 값은 프론트 환경변수에 두지 않는다.
 - 로컬 개발에 필요한 값은 예시 파일로만 제공하고 실제 secret은 커밋하지 않는다.
-- Firebase Admin SDK 초기화는 서버 공통 모듈 한 곳에서만 수행한다.
-- Firestore 접근은 기능별 API에서 직접 흩어 쓰지 않도록 공통 진입점을 만든다.
+- Firebase Admin SDK 초기화가 필요해지면 서버 공통 모듈 한 곳에서만 수행한다.
+- Firestore 서버 접근이 필요해지면 기능별 API에서 직접 흩어 쓰지 않도록 공통 진입점을 만든다.
 - health check는 배포와 호출 가능 여부 확인만 담당하며 사용자 데이터, Toss API, Firestore 쓰기를 수행하지 않는다.
 - 서버 오류는 클라이언트에 내부 구현이나 비밀값을 노출하지 않는다.
 - 로깅은 디버깅 가능한 최소 정보만 남기고 토큰, 인가 코드, 사용자 식별자 원문은 남기지 않는다.
-- region, Firebase project, 배포 대상은 프로젝트 기준을 명시하고 미정이면 임의로 확정하지 않는다.
-- Functions 빌드 산출물, emulator 캐시, 실제 `.env` 파일은 커밋하지 않는다.
+- 배포 대상은 프로젝트 기준을 명시하고 미정이면 임의로 확정하지 않는다.
+- 백엔드 빌드 산출물, 런타임 캐시, 실제 `.env` 파일은 커밋하지 않는다.
+- 개발 후반 Firebase Functions로 이전할 때는 HTTP 핸들러와 비즈니스 로직을 재사용할 수 있어야 한다.
 
 ## 상태 및 예외 처리
 
@@ -71,43 +76,44 @@
 - 프론트는 서버 응답을 성공, 인증 필요, 검증 실패, 서버 오류, 미구현 상태로 구분할 수 있어야 한다.
 - 미구현 API는 성공처럼 처리하지 않는다.
 - 헬스체크 실패는 앱 전체 기능 실패가 아니라 백엔드 연결 실패로 구분한다.
-- 로컬 에뮬레이터에서 Functions가 실행되지 않으면 원인을 확인할 수 있어야 한다.
-- emulator 미실행 상태에서 프론트가 빈 화면으로 멈추지 않게 한다.
+- 로컬 백엔드가 실행되지 않으면 원인을 확인할 수 있어야 한다.
+- 로컬 백엔드 미실행 상태에서 프론트가 빈 화면으로 멈추지 않게 한다.
 - 필수 서버 설정이 누락되면 함수가 조용히 실패하지 않고 명확한 오류를 남긴다.
 - 비밀값 누락, Firebase Admin 초기화 실패, Firestore 접근 실패는 구분 가능해야 한다.
-- CORS 또는 Hosting rewrite 설정이 필요한 경우 프론트 호출 경로와 함께 검증한다.
+- CORS 또는 개발 서버 proxy 설정이 필요한 경우 프론트 호출 경로와 함께 검증한다.
 - 에러 응답에는 토큰, secret, stack trace를 포함하지 않는다.
 
 ## 완료 기준
 
-- 레포 내부에 Firebase Functions 백엔드 코드 구조가 준비되어 있다.
-- Functions TypeScript 빌드가 통과한다.
-- Functions 타입체크가 통과한다.
+- 레포 내부에 백엔드 코드 구조가 준비되어 있다.
+- 백엔드 TypeScript 빌드가 통과한다.
+- 백엔드 타입체크가 통과한다.
 - 프론트 빌드가 통과한다.
 - 프론트 타입체크가 통과한다.
-- Firebase Emulator로 Functions를 로컬 실행할 수 있다.
+- 로컬에서 백엔드를 실행할 수 있다.
 - `GET /api/health`를 로컬에서 호출해 정상 응답을 확인할 수 있다.
 - 프론트 API 어댑터에서 헬스체크 호출이 가능하다.
-- Firebase Admin SDK 초기화 위치가 분리되어 있다.
+- Firebase Admin SDK 초기화가 필요해질 경우의 위치가 분리되어 있다.
 - 서버 전용 환경변수와 secret을 둘 위치가 정리되어 있다.
 - 프론트 공개 환경변수와 서버 비밀값의 경계가 명확하다.
 - 공통 HTTP 응답과 오류 응답 기준이 있다.
-- 프론트 컴포넌트가 Functions 구현 세부 파일을 직접 참조하지 않는다.
+- 프론트 컴포넌트가 백엔드 구현 세부 파일을 직접 참조하지 않는다.
 - Toss 로그인, 답안 제출, 정답 검증, 포인트 지급, 멱등 처리 로직은 포함되지 않는다.
 - 실제 secret 값이 저장소에 커밋되지 않는다.
 
 ## Git 전략
 
-- 최신 `dev` 기준에서 `codex/02-firebase-functions-backend` 형식의 작업 브랜치를 만든다.
-- Firebase Functions 기반 설정, API 계약, 프론트 API 어댑터 경계는 가능한 작은 커밋 단위로 나눈다.
+- 최신 `dev` 기준에서 `codex/02-backend-foundation` 형식의 작업 브랜치를 만든다.
+- 백엔드 기반 설정, API 계약, 프론트 API 어댑터 경계는 가능한 작은 커밋 단위로 나눈다.
 - 작업 완료 후 `docs/exec-plans/completed/02-firebase-functions-backend-result.md`를 작성한다.
 - 작업 브랜치에서 `dev`로 PR을 보낸다.
 - PR 설명에는 참조한 active 문서, 작성한 completed 문서, 실행한 build/typecheck/emulator 검증 결과를 함께 적는다.
-- Firebase 프로젝트, region, secret 등록이 미정이면 PR에 미해결 결정사항으로 남긴다.
+- 백엔드 런타임, Firebase Functions 이전 시점, secret 등록 방식이 미정이면 PR에 미해결 결정사항으로 남긴다.
 
 ## 다음 작업과의 연결
 
-- 3번 작업은 이번에 만든 `POST /api/auth/toss-login` 계약과 API 어댑터 경계를 사용해 Toss 로그인 흐름을 연결한다.
+- 3번 서버 API 구현 작업은 이번에 만든 API 계약과 백엔드 기반 위에 실제 서버 API를 추가한다.
+- 3번 토스 로그인 기능 구현 작업은 서버 API 구현 이후 `POST /api/auth/toss-login` 계약과 API 어댑터 경계를 사용해 Toss 로그인 흐름을 연결한다.
 - 4번 작업은 서버 세션 확인 계약을 바탕으로 사용자 식별 및 진행 상태 기준을 정의한다.
 - 9번 작업은 이번에 예약한 `POST /api/quiz/submit` 계약을 실제 답안 제출 API로 확장한다.
 - 12번 작업은 이번에 예약한 `POST /api/rewards/toss-point` 계약을 실제 포인트 지급 요청 흐름으로 확장한다.

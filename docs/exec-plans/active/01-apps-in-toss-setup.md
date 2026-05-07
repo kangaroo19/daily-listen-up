@@ -79,18 +79,18 @@ Apps in Toss 모바일 WebView 안에서 React 앱이 안정적으로 실행되�
 
 ## 완료 기준
 
-- React + TypeScript 앱이 로컬에서 실행된다.
-- Apps in Toss WebView에서 기본 앱 화면이 정상 표시된다.
-- 모바일 WebView 기준의 기본 레이아웃이 준비되어 있다.
-- `npm run build`가 통과한다.
-- `npm run lint`가 통과한다.
-- `npm run typecheck`가 통과한다.
-- `npm run format:check`가 통과한다.
-- Firebase 클라이언트 SDK, Toss SDK, Toss Ads, 서버 API 접근 경계가 분리되어 있다.
-- 환경변수 검증 기준이 있고, 필수값 누락을 확인할 수 있다.
-- 공통 로딩 화면과 공통 초기화 실패 화면이 준비되어 있다.
-- 실제 로그인, 문제 조회, 광고 호출, 보상 요청 로직은 들어가 있지 않다.
-- 2번 이후 작업이 앱 진입 구조를 다시 설계하지 않고 이어질 수 있다.
+- [ ] React + TypeScript 앱이 로컬에서 실행된다.
+- [ ] Apps in Toss WebView에서 기본 앱 화면이 정상 표시된다.
+- [ ] 모바일 WebView 기준의 기본 레이아웃이 준비되어 있다.
+- [ ] `npm run build`가 통과한다.
+- [ ] `npm run lint`가 통과한다.
+- [ ] `npm run typecheck`가 통과한다.
+- [ ] `npm run format:check`가 통과한다.
+- [ ] Firebase 클라이언트 SDK, Toss SDK, Toss Ads, 서버 API 접근 경계가 분리되어 있다.
+- [ ] 환경변수 검증 기준이 있고, 필수값 누락을 확인할 수 있다.
+- [ ] 공통 로딩 화면과 공통 초기화 실패 화면이 준비되어 있다.
+- [ ] 실제 로그인, 문제 조회, 광고 호출, 보상 요청 로직은 들어가 있지 않다.
+- [ ] 2번 이후 작업이 앱 진입 구조를 다시 설계하지 않고 이어질 수 있다.
 
 ## Git 전략
 

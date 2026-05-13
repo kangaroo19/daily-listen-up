@@ -5,29 +5,40 @@
   "type": "module",
   "scripts": {
     "dev": "granite dev",
+    "dev:server": "tsx server/src/index.ts",
     "build": "ait build",
     "lint": "eslint .",
+    "typecheck:server": "tsc -p tsconfig.server.json --noEmit",
+    "test:server": "vitest run server",
     "format": "prettier --write ."
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "^2.5.1",
     "@toss/tds-mobile": "^2.3.0",
     "@toss/tds-mobile-ait": "^2.3.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.7.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
+    "@types/supertest": "^7.2.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
     "prettier": "^3.4.2",
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^4.1.6"
   }
 }

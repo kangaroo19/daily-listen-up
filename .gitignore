@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .granite/
+.vite/
 *.ait
 .env
 .env.*

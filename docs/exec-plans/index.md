@@ -97,10 +97,10 @@ MVP는 다음 3개 주요 페이지를 기준으로 구현한다.
    - 파일명: `active/09-audio-player-ui.md`
 10. 복수응답 퀴즈 풀이 UI 구현
     - 파일명: `active/10-multiple-choice-quiz-ui.md`
-11. 답안 제출 및 결과 확인 전면형 광고 구현
-    - 파일명: `active/11-answer-submit-interstitial.md`
-12. 정답 검증 API 구현
-    - 파일명: `active/12-answer-result-api.md`
+11. 정답 검증 API 구현
+    - 파일명: `active/11-answer-result-api.md`
+12. 답안 제출 및 결과 확인 전면형 광고 구현
+    - 파일명: `active/12-answer-submit-interstitial.md`
 13. 포인트 지급 및 지급 상태 조회 서버 연동
     - 파일명: `active/13-point-reward-server.md`
 14. 결과 화면 상태 분기와 보상 상태 UI 구현

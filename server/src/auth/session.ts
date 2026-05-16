@@ -21,3 +21,12 @@ export function getKstDayEnd(now: Date) {
 
   return new Date(nextKstMidnightUtcMs)
 }
+
+export function getKstQuizDate(now: Date) {
+  const kstNow = new Date(now.getTime() + KST_OFFSET_MS)
+  const year = kstNow.getUTCFullYear()
+  const month = String(kstNow.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(kstNow.getUTCDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}

@@ -1,32 +1,100 @@
 import { appLogin } from "@apps-in-toss/web-framework";
 import { Button, Top } from "@toss/tds-mobile";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
+import { resolveEntryRoute, type HomeEntryState } from "./app/entryFlow";
 import { performTossLogin } from "./auth/loginFlow";
-import { loadTodayQuiz } from "./quiz/todayQuizClient";
+import type { TodayQuizResult } from "./quiz/todayQuizClient";
 import "./App.css";
 
-type HomeStatus =
-  | "idle"
-  | "loginLoading"
-  | "quizLoading"
-  | "quizAvailable"
-  | "quizEmpty"
-  | "loginError"
-  | "quizError";
+type HomeStatus = "loginError" | HomeEntryState;
 
 function App() {
-  const [homeStatus, setHomeStatus] = useState<HomeStatus>("idle");
+  return (
+    <Routes>
+      <Route path="/" element={<EntryRouter initialPage="home" />} />
+      <Route path="/quiz" element={<EntryRouter initialPage="quiz" />} />
+      <Route path="/result" element={<EntryRouter initialPage="result" />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
-  const isBusy = homeStatus === "loginLoading" || homeStatus === "quizLoading";
-  const statusMessage = getStatusMessage(homeStatus);
+function EntryRouter({
+  initialPage,
+}: {
+  initialPage: "home" | "quiz" | "result";
+}) {
+  const navigate = useNavigate();
+  const [homeStatus, setHomeStatus] = useState<HomeStatus>("idle");
+  const [todayQuiz, setTodayQuiz] = useState<TodayQuizResult | null>(null);
+  const [isCheckingEntry, setIsCheckingEntry] = useState(false);
+
+  const runEntryFlow = useCallback(async () => {
+    setIsCheckingEntry(true);
+
+    const result = await resolveEntryRoute({
+      apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
+      fetch: window.fetch.bind(window),
+      storage: window.sessionStorage,
+    });
+
+    setTodayQuiz(result.todayQuiz ?? null);
+
+    if (result.route === "/") {
+      setHomeStatus(result.homeState);
+    }
+
+    navigate(result.route, { replace: true });
+    setIsCheckingEntry(false);
+
+    return result;
+  }, [navigate]);
+
+  useEffect(() => {
+    void runEntryFlow();
+  }, [runEntryFlow]);
+
+  if (isCheckingEntry) {
+    return <LoadingShell message="오늘 문제를 확인하고 있어요." />;
+  }
+
+  if (initialPage === "quiz") {
+    return <QuizShell todayQuiz={todayQuiz} />;
+  }
+
+  if (initialPage === "result") {
+    return <ResultShell />;
+  }
+
+  return <HomePage homeStatus={homeStatus} onLoginComplete={runEntryFlow} />;
+}
+
+function HomePage({
+  homeStatus,
+  onLoginComplete,
+}: {
+  homeStatus: HomeStatus;
+  onLoginComplete: () => Promise<unknown>;
+}) {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [hasLoginError, setHasLoginError] = useState(false);
+  const isEmpty = homeStatus === "empty";
+  const isBusy = isLoggingIn;
+  const statusMessage = isLoggingIn
+    ? "로그인을 진행하고 있어요."
+    : hasLoginError
+      ? "로그인을 완료하지 못했어요. 다시 시작해 주세요."
+      : getStatusMessage(homeStatus);
 
   async function handleStart() {
-    if (isBusy) {
+    if (isBusy || isEmpty) {
       return;
     }
 
-    setHomeStatus("loginLoading");
+    setIsLoggingIn(true);
+    setHasLoginError(false);
 
     try {
       await performTossLogin({
@@ -35,24 +103,11 @@ function App() {
         fetch: window.fetch.bind(window),
         storage: window.sessionStorage,
       });
-      setHomeStatus("quizLoading");
+      await onLoginComplete();
     } catch {
-      setHomeStatus("loginError");
-      return;
-    }
-
-    try {
-      const todayQuiz = await loadTodayQuiz({
-        apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
-        fetch: window.fetch.bind(window),
-        storage: window.sessionStorage,
-      });
-
-      setHomeStatus(
-        todayQuiz.status === "available" ? "quizAvailable" : "quizEmpty",
-      );
-    } catch {
-      setHomeStatus("quizError");
+      setHasLoginError(true);
+    } finally {
+      setIsLoggingIn(false);
     }
   }
 
@@ -76,31 +131,82 @@ function App() {
         <p className="home-status" role="status">
           {statusMessage}
         </p>
+        {isEmpty ? (
+          <p className="home-status-detail">잠시 후 다시 확인해 주세요.</p>
+        ) : null}
       </div>
 
       <div className="home-cta">
-        <Button
-          display="full"
-          disabled={isBusy || homeStatus === "quizAvailable"}
-          loading={isBusy}
-          onClick={handleStart}
-        >
-          시작하기
-        </Button>
+        {isEmpty ? (
+          <p className="home-ready-state">준비 중</p>
+        ) : (
+          <Button
+            display="full"
+            disabled={isBusy}
+            loading={isBusy}
+            onClick={handleStart}
+          >
+            시작하기
+          </Button>
+        )}
       </div>
+    </main>
+  );
+}
+
+function LoadingShell({ message }: { message: string }) {
+  return (
+    <main className="page-shell">
+      <p className="home-status" role="status">
+        {message}
+      </p>
+    </main>
+  );
+}
+
+function QuizShell({ todayQuiz }: { todayQuiz: TodayQuizResult | null }) {
+  return (
+    <main className="page-shell">
+      <Top
+        title={
+          <Top.TitleParagraph size={22}>
+            오늘의 영어를 들어보세요
+          </Top.TitleParagraph>
+        }
+        subtitleBottom={
+          <Top.SubtitleParagraph size={17}>
+            {todayQuiz?.status === "available"
+              ? todayQuiz.quiz.questionText
+              : "문제를 준비하고 있어요."}
+          </Top.SubtitleParagraph>
+        }
+      />
+    </main>
+  );
+}
+
+function ResultShell() {
+  return (
+    <main className="page-shell">
+      <Top
+        title={
+          <Top.TitleParagraph size={22}>
+            오늘 학습을 완료했어요
+          </Top.TitleParagraph>
+        }
+        subtitleBottom={
+          <Top.SubtitleParagraph size={17}>
+            내일 새로운 문제로 다시 만나요.
+          </Top.SubtitleParagraph>
+        }
+      />
     </main>
   );
 }
 
 function getStatusMessage(homeStatus: HomeStatus) {
   switch (homeStatus) {
-    case "loginLoading":
-      return "로그인을 진행하고 있어요.";
-    case "quizLoading":
-      return "로그인 완료, 오늘 문제를 준비 중이에요.";
-    case "quizAvailable":
-      return "오늘 문제를 불러왔어요.";
-    case "quizEmpty":
+    case "empty":
       return "오늘의 문제가 아직 준비되지 않았어요.";
     case "quizError":
       return "문제를 불러오지 못했어요.";

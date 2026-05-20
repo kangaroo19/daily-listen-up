@@ -6,8 +6,9 @@
 
 ## 기본 전제
 
-- 백엔드 코드는 초기에는 이 프로젝트 내부에 둔다.
-- 배포 직전 Firebase Functions로 옮길 수 있는 구조를 전제로 한다.
+- 백엔드는 Firebase Functions로 구현한다.
+- 로컬 개발과 검증은 Firebase Emulator를 기준으로 한다.
+- 프론트 프로젝트 내부에는 별도 Express/서버 코드를 두지 않는다.
 - DB는 Firestore를 사용한다.
 - 오디오 파일은 Firebase Storage에 보관한다.
 - 클라이언트에는 공개 가능한 값만 둔다.
@@ -52,7 +53,8 @@
 
 ## API 후보
 
-아래 API는 제품 흐름을 설명하기 위한 후보이며, 세부 요청/응답 형식은 구현 단계에서 확정한다.
+아래 API는 Firebase HTTPS Functions로 제공하는 HTTP API 후보이며, 제품 흐름을 설명하기 위한 후보이다.
+세부 요청/응답 형식은 구현 단계에서 확정한다.
 
 - `POST /api/login/toss`
   - `authorizationCode`, `referrer`를 받아 토스 토큰 교환, 사용자 조회, 앱 세션 토큰 발급을 처리한다.
@@ -133,8 +135,7 @@
 
 ## 아직 확정하지 않는 것
 
-- 서버 내부 폴더 구조
-- Firebase Functions 이전 방식
+- Firebase Functions 배포와 라우팅 세부 방식
 - API 요청/응답 세부 형식
 - Firestore 필드의 정확한 타입과 인덱스
 - 정답 검증 요청과 지급 요청의 세부 에러 코드

@@ -24,6 +24,29 @@
 - 중복 요청에 대한 중복 지급 방지
 - 지급 결과 저장과 재조회 기준 제공
 
+## 오늘 문제 상태 모델
+
+오늘 문제 진행 상태와 포인트 지급 상태는 서로 다른 축으로 관리한다.
+화면 진입 가능 여부는 `progressStatus`를 기준으로 판단하고, 포인트 지급 안내는 `rewardStatus`를 기준으로 판단한다.
+
+### `progressStatus`
+
+| 값 | 의미 |
+| --- | --- |
+| `not_started` | 오늘 문제를 아직 제출하지 않은 상태 |
+| `wrong` | 마지막 제출 결과가 오답인 상태 |
+| `retry_unlocked` | 보상형 광고 완료로 재도전권 1회를 확보한 상태 |
+| `completed` | 오늘 문제 정답 처리와 학습 완료가 기록된 상태 |
+
+### `rewardStatus`
+
+| 값 | 의미 |
+| --- | --- |
+| `none` | 아직 포인트 지급 흐름에 진입하지 않은 상태 |
+| `pending` | 포인트 지급 요청 후 확인 중인 상태 |
+| `success` | 포인트 지급이 완료된 상태 |
+| `failed` | 포인트 지급이 실패한 상태 |
+
 ## 참고 문서
 
 - [appLogin](https://developers-apps-in-toss.toss.im/bedrock/reference/framework/%EB%A1%9C%EA%B7%B8%EC%9D%B8/appLogin.md)
@@ -70,6 +93,7 @@
 - 호출 시점: 문제 풀이 화면 진입 시, 오늘 문제 콘텐츠를 불러올 때 호출한다.
 - 서버 KST 기준 오늘 공개된 문제의 풀이용 공개 데이터를 반환한다.
 - 정답, 스크립트, 포인트 금액, 원본 Storage 경로는 반환하지 않는다.
+- 응답의 `quizDate`는 이후 답안 제출, 보상형 광고 완료, 스크립트 열람 요청에서 같은 문제를 식별하는 기준으로 사용한다.
 
 처리 과정:
 
@@ -96,24 +120,33 @@
 ### `POST /api/answer-result`
 
 - 호출 시점: 사용자가 답안을 제출하고 결과 확인 전면형 광고의 `dismissed` 이벤트가 발생한 직후 호출한다.
-- 선택 답안을 검증하고 정답/오답 및 포인트 지급 상태를 반환한다.
-- 정답이면 오늘 학습 완료 상태로 기록하고 포인트 지급 흐름에 진입한다.
+- 클라이언트는 `GET /api/today-quiz`에서 받은 `quizDate`와 선택 답안을 함께 전달한다.
+- 선택 답안을 검증하고 정답/오답, `progressStatus`, `rewardStatus`를 반환한다.
+- 정답이면 `progressStatus = completed`로 기록하고 포인트 지급 흐름에 진입한다.
+- 첫 제출은 `progressStatus = not_started`에서만 허용한다.
+- 재제출은 `progressStatus = retry_unlocked`에서만 허용하며, 재제출 처리 시 재도전권을 소진한다.
+- `progressStatus = wrong` 상태에서 광고 보상 없이 재제출하면 거부한다.
 
 처리 과정:
 
 1. 서버가 앱 세션 토큰을 확인한다.
-2. 서버가 KST 기준 오늘 문제를 조회한다.
-3. 서버가 서버에 저장된 정답 기준으로 제출 답안을 채점한다.
-4. 서버가 `userProgress`를 업데이트한다.
-5. 정답이면 `rewardGrants`에서 기존 지급 기록을 확인한다.
-6. 기존 지급 기록이 없으면 토스 포인트 지급을 요청한다.
-7. 서버가 지급 상태를 `rewardGrants` 컬렉션에 저장한다.
-8. 클라이언트에 정답 여부와 지급 상태를 반환한다.
+2. 서버가 요청의 `quizDate`에 해당하는 공개 문제를 조회한다.
+3. 서버가 현재 `progressStatus` 기준으로 제출 가능 여부를 검증한다.
+4. 서버가 서버에 저장된 정답 기준으로 제출 답안을 채점한다.
+5. 오답이면 `progressStatus = wrong`, `rewardStatus = none`으로 `userProgress`를 업데이트한다.
+6. 정답이면 `progressStatus = completed`로 `userProgress`를 업데이트한다.
+7. 정답이면 `rewardGrants`에서 기존 지급 기록을 확인한다.
+8. 기존 지급 기록이 없으면 토스 포인트 지급을 요청한다.
+9. 서버가 지급 상태를 `rewardGrants` 컬렉션과 `userProgress.rewardStatus`에 저장한다.
+10. 클라이언트에 정답 여부, `progressStatus`, `rewardStatus`를 반환한다.
 
 ### `GET /api/reward-status`
 
 - 호출 시점: 홈 시작 흐름에서 오늘 문제 존재 확인 후, 사용자의 오늘 지급 상태를 확인할 때 호출한다.
-- 포인트 지급 상태를 `pending`, `success`, `failed` 중 하나로 반환한다.
+- 이름은 유지하지만, 오늘 문제 진행 상태와 포인트 지급 상태를 함께 반환한다.
+- `progressStatus`는 `not_started`, `wrong`, `retry_unlocked`, `completed` 중 하나로 반환한다.
+- `rewardStatus`는 `none`, `pending`, `success`, `failed` 중 하나로 반환한다.
+- 지급 기록이 없으면 `rewardStatus = none`으로 판단한다.
 
 처리 과정:
 
@@ -123,26 +156,32 @@
 4. 서버가 KST 기준 오늘 날짜를 계산한다.
 5. 서버가 userProgress에서 해당 userId, quizDate의 진행 상태를 조회한다.
 6. 필요하면 rewardGrants에서 해당 userId, quizDate의 지급 기록도 조회한다.
-7. 지급 기록이 있으면 저장된 지급 상태를 반환한다.
-8. 지급 기록이 없으면 아직 포인트 지급 흐름에 들어가지 않은 상태로 판단한다.
+7. 진행 기록이 없으면 `progressStatus = not_started`로 판단한다.
+8. 지급 기록이 있으면 저장된 지급 상태를 `rewardStatus`로 반환한다.
+9. 지급 기록이 없으면 `rewardStatus = none`으로 반환한다.
 
 ### `POST /api/rewarded-ad-complete`
 
 - 호출 시점: 재도전 또는 스크립트 열람을 위한 보상형 광고에서 `userEarnedReward` 이벤트가 발생한 직후 호출한다.
 - 보상형 광고의 `userEarnedReward` 확인 후 `retry` 또는 `script` 권한을 기록한다.
+- 클라이언트는 `GET /api/today-quiz`에서 받은 `quizDate`를 함께 전달한다.
+- `purpose = retry`이면 `progressStatus = retry_unlocked`로 업데이트한다.
+- 재도전권은 누적하지 않는다. 이미 `retry_unlocked`이면 같은 상태를 유지한다.
+- `purpose = script`이면 스크립트 열람권을 기록하고 응답에 `script` 본문을 포함한다.
 - 결과 확인 전면형 광고 완료 여부는 이 API에서 기록하지 않는다.
 
 처리 과정:
 
 1. 클라이언트가 앱 세션 토큰과 함께 POST /api/rewarded-ad-complete를 호출한다.
 2. 서버가 appSessions에서 앱 세션이 유효한지 확인한다.
-3. 서버가 KST 기준 오늘 날짜를 계산한다.
+3. 서버가 요청의 `quizDate`에 해당하는 공개 문제를 조회한다.
 4. 서버가 요청의 purpose가 retry 또는 script인지 확인한다.
 5. 서버가 보상형 광고의 userEarnedReward 이벤트가 확인된 요청인지 검증한다.
 6. 서버가 adRewardEvents에 광고 보상 기록을 저장한다.
-7. purpose = retry면 userProgress.canRetry = true로 업데이트한다.
+7. purpose = retry면 userProgress.progressStatus = retry_unlocked로 업데이트한다.
 8. purpose = script면 userProgress.canViewScript = true로 업데이트한다.
-9. 클라이언트에 갱신된 권한 상태를 반환한다.
+9. purpose = script면 응답에 해당 문제의 script를 포함한다.
+10. 클라이언트에 갱신된 권한 상태를 반환한다.
 
 ## Firestore 컬렉션 초안
 
@@ -172,13 +211,12 @@
 
 - `userId` - 타입: `string`, 역할: 진행 상태의 사용자 ID
 - `quizDate` - 타입: `string`, 역할: KST 기준 진행 날짜
-- `status` - 타입: `string`, 역할: 당일 진행 상태
+- `progressStatus` - 타입: `string`, 역할: 당일 문제 진행 상태. `not_started`, `wrong`, `retry_unlocked`, `completed` 중 하나
 - `attemptCount` - 타입: `number`, 역할: 정답 제출 시도 횟수
 - `lastSubmittedChoiceIds` - 타입: `array<string>`, 역할: 마지막으로 제출한 선택지 ID 목록
 - `isCorrect` - 타입: `boolean`, 역할: 마지막 제출 결과의 정답 여부
-- `canRetry` - 타입: `boolean`, 역할: 보상형 광고 완료 후 재도전 가능 여부
 - `canViewScript` - 타입: `boolean`, 역할: 보상형 광고 완료 후 스크립트 열람 가능 여부
-- `rewardStatus` - 타입: `string`, 역할: 포인트 지급 상태. `pending`, `success`, `failed` 중 하나
+- `rewardStatus` - 타입: `string`, 역할: 포인트 지급 상태. `none`, `pending`, `success`, `failed` 중 하나
 - `rewardReviewRequired` - 타입: `boolean`, 역할: 포인트 지급 실패 후 고객 안내 또는 재확인 대상 여부
 
 ### `rewardGrants`
@@ -208,6 +246,7 @@
 - 원본 `userKey`는 서버 전용 필드로만 보관한다.
 - 정답 목록은 제출 전 클라이언트에 내려주지 않는다.
 - 답안 검증은 결과 확인 전면형 광고 완료 후 서버 API로 수행한다.
+- 답안 검증과 광고 보상 처리는 클라이언트가 전달한 `quizDate`를 기준으로 수행한다.
 - Storage에는 오디오 파일을 두고, Firestore에는 `audioStoragePath`만 저장한다.
 - 프론트에는 서버가 재생 가능한 오디오 URL을 내려준다.
 - 비게임 프로모션 포인트 지급은 서버 API 방식으로 처리한다.

@@ -38,12 +38,13 @@
     6. 서버가 새 앱 세션 토큰을 발급한다.
     7. 클라이언트가 `GET /api/check-today-quiz`를 호출한다.
     8. 오늘 문제가 있으면 `GET /api/reward-status`를 호출한다.
-    9. 지급 상태에 따라 문제 화면으로 이동하거나 홈에 토스트를 표시한다.
+    9. 진행 상태와 지급 상태에 따라 문제 화면으로 이동하거나 홈에 토스트를 표시한다.
   - 오늘 영어 듣기 문제가 없으면 홈에 머무르고 토스트로 `오늘의 문제가 아직 준비되지 않았어요.`를 보여준다.
   - 오늘 영어 듣기 문제가 있으면 `GET /api/reward-status`를 호출한다.
-  - 지급 상태가 `pending`이면 오늘의 문제 풀이 화면으로 이동한다.
-  - 지급 상태가 `success`이면 홈에 머무르고 토스트로 `오늘 문제풀이를 완료했습니다`를 보여준다.
-  - 지급 상태가 `failed`이면 홈에 머무르고 토스트로 `포인트 지급 확인이 필요해요`를 보여준다.
+  - `GET /api/reward-status` 응답의 `progressStatus`는 오늘 문제 진행 상태이고, `rewardStatus`는 포인트 지급 상태다.
+  - `progressStatus`가 `not_started`, `wrong`, `retry_unlocked`이면 오늘의 문제 풀이 화면으로 이동할 수 있다.
+  - `progressStatus`가 `completed`이고 `rewardStatus`가 `failed`이면 홈에 머무르고 토스트로 `포인트 지급 확인이 필요해요`를 보여준다.
+  - `progressStatus`가 `completed`이고 `rewardStatus`가 `failed`가 아니면 홈에 머무르고 토스트로 `오늘 문제풀이를 완료했습니다`를 보여준다.
   - 기본 상태에서는 활성화한다.
   - 요청 처리 중에는 중복 클릭을 막기 위해 비활성화한다.
 

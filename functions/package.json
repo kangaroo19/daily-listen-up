@@ -1,0 +1,24 @@
+{
+  "name": "daily-listen-up-functions",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test \"lib/**/*.test.js\"",
+    "seed:sample": "npm run build && node lib/scripts/seedSampleData.js",
+    "verify:sample": "npm run build && node lib/scripts/verifySampleData.js"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.10.0",
+    "firebase-functions": "^7.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "typescript": "latest"
+  }
+}

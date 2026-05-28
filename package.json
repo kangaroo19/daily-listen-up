@@ -1,0 +1,27 @@
+{
+  "name": "daily-listen-up",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -b && vite build"
+  },
+  "dependencies": {
+    "@apps-in-toss/web-framework": "latest",
+    "@emotion/react": "^11.0.0",
+    "@toss/tds-mobile": "latest",
+    "@toss/tds-mobile-ait": "latest",
+    "firebase": "latest",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

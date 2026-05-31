@@ -8,7 +8,8 @@
     "build": "tsc",
     "test": "npm run build && node --test \"lib/**/*.test.js\"",
     "seed:sample": "npm run build && node lib/scripts/seedSampleData.js",
-    "verify:sample": "npm run build && node lib/scripts/verifySampleData.js"
+    "verify:sample": "npm run build && node lib/scripts/verifySampleData.js",
+    "verify:login-session": "npm run build && node lib/scripts/verifyLoginSession.js"
   },
   "engines": {
     "node": "20"

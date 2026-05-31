@@ -79,3 +79,17 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
+
+.toast-message {
+  position: fixed;
+  right: 20px;
+  bottom: calc(env(safe-area-inset-bottom) + 90px);
+  left: 20px;
+  border-radius: 8px;
+  background: rgba(25, 31, 40, 0.92);
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 1.45;
+  padding: 12px 14px;
+  text-align: center;
+}

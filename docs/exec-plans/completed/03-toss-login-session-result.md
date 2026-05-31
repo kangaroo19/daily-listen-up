@@ -66,9 +66,18 @@
 - Chrome DevTools 수동 확인: 일반 브라우저에서 Toss 환경이 아니므로 로그인 실패 문구가 노출되고 버튼이 재활성화됨을 확인했다.
 - 비밀값 검색: 실제 Firebase 서비스 계정 키, Toss 비밀키, 운영 토큰은 저장소에 추가되지 않았다.
 
+## 추가 작업
+
+- Toss API 실연동에 필요한 로컬 emulator용 mTLS 인증서/개인키 경로 설정을 추가했다.
+  - 근거: `.env.example`에 서버 전용 `TOSS_MTLS_CERT_PATH`, `TOSS_MTLS_KEY_PATH`를 추가했다. 실제 인증서/개인키 파일과 로컬 `functions/.env.local`은 `.gitignore` 대상이라 저장소에 커밋하지 않는다. 현재 Windows 로컬 파일 경로는 배포 환경에서 사용할 수 없다.
+- Toss 토큰 교환과 `login-me` 호출이 mTLS 인증서를 사용할 수 있도록 서버 전용 HTTP 클라이언트를 추가했다.
+  - 근거: `functions/src/services/tossLoginClient.ts`는 mTLS 환경변수가 있으면 Node `https.request`에 `cert`, `key`, `rejectUnauthorized`를 설정해 `apps-in-toss-api.toss.im`을 호출한다. 환경변수가 없으면 기존 `fetch` 기반 mock 검증 흐름을 유지한다.
+- Android 샌드박스 수동 테스트에서 실제 Toss 로그인 세션 저장을 확인했다.
+  - 근거: `시작하기` 클릭 후 Firebase Emulator의 `users`, `appSessions` 컬렉션에 문서가 생성됨을 확인했다. 이전 TLS handshake 실패는 mTLS 설정 후 발생하지 않았다.
+
 ## 후속 참고 사항
 
 - 04번은 `src/services/appSession.ts`의 `getAppSessionToken()`으로 앱 세션 토큰을 읽어 `GET /api/check-today-quiz`, `GET /api/reward-status` 요청의 `Authorization: Bearer ${token}` 헤더에 사용하면 된다.
 - 서버 쪽 이후 API는 `functions/src/services/sessionBoundary.ts`의 `getBearerToken()`과 `requireAppSession()`으로 앱 세션을 확인하면 된다.
 - `POST /api/login/toss` 성공 응답 형식은 `{ appSessionToken, expiresAt }`이다.
-- Toss API 실연동은 mTLS가 필요하다. 서버 환경 변수 `TOSS_MTLS_CERT_PATH`, `TOSS_MTLS_KEY_PATH`에 인증서/개인키 파일 경로를 설정하고, 인증서 파일 자체는 저장소에 커밋하지 않는다.
+- Toss API 실연동은 mTLS가 필요하다. 로컬 emulator는 `TOSS_MTLS_CERT_PATH`, `TOSS_MTLS_KEY_PATH` 파일 경로를 사용한다. 실제 Firebase Functions 배포 전에는 인증서/개인키를 Firebase Secret Manager로 주입하는 방식으로 전환해야 하며, 인증서 파일 자체는 저장소나 배포 산출물에 포함하지 않는다.

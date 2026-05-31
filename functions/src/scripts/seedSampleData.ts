@@ -35,4 +35,4 @@ await bucket.file(quiz.audioStoragePath).save(fixture, {
 });
 
 console.log(`Seeded ${collections.quizzes}/${quiz.quizDate}`);
-console.log(`Uploaded gs://${storageBucket}/${quiz.audioStoragePath}`);
+console.log(`Uploaded sample quiz audio to ${storageBucket}.`);

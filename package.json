@@ -13,7 +13,8 @@
     "firebase:seed": "npm --prefix functions run seed:sample",
     "firebase:verify-sample": "npm --prefix functions run verify:sample",
     "firebase:verify-login-session": "npm --prefix functions run verify:login-session",
-    "firebase:verify-home-entry": "npm --prefix functions run verify:home-entry"
+    "firebase:verify-home-entry": "npm --prefix functions run verify:home-entry",
+    "firebase:verify-today-quiz": "npm --prefix functions run verify:today-quiz"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "latest",

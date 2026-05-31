@@ -15,6 +15,17 @@ export type RewardStatusResponse = {
   rewardStatus: RewardStatus;
 };
 
+export type TodayQuizChoice = {
+  id: string;
+  text: string;
+};
+
+export type TodayQuizResponse = {
+  quizDate: string;
+  audioUrl: string;
+  choices: TodayQuizChoice[];
+};
+
 export async function postTossLogin(loginResult: TossLoginResult): Promise<AppSession> {
   const response = await fetch(`${clientEnv.apiBaseUrl}/api/login/toss`, {
     method: 'POST',
@@ -88,10 +99,51 @@ export async function getRewardStatus(appSessionToken: string): Promise<RewardSt
   };
 }
 
+export async function getTodayQuiz(appSessionToken: string, signal?: AbortSignal): Promise<TodayQuizResponse> {
+  const response = await fetch(`${clientEnv.apiBaseUrl}/api/today-quiz`, {
+    headers: {
+      authorization: `Bearer ${appSessionToken}`,
+    },
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to get today quiz.');
+  }
+
+  const body = (await response.json()) as Partial<TodayQuizResponse>;
+
+  if (
+    typeof body.quizDate !== 'string' ||
+    typeof body.audioUrl !== 'string' ||
+    !Array.isArray(body.choices) ||
+    body.choices.length !== 5 ||
+    !body.choices.every(isTodayQuizChoice)
+  ) {
+    throw new Error('Invalid today quiz response.');
+  }
+
+  return {
+    quizDate: body.quizDate,
+    audioUrl: body.audioUrl,
+    choices: body.choices,
+  };
+}
+
 function isProgressStatus(value: unknown): value is ProgressStatus {
   return value === 'not_started' || value === 'wrong' || value === 'retry_unlocked' || value === 'completed';
 }
 
 function isRewardStatus(value: unknown): value is RewardStatus {
   return value === 'none' || value === 'pending' || value === 'success' || value === 'failed';
+}
+
+function isTodayQuizChoice(value: unknown): value is TodayQuizChoice {
+  if (typeof value !== 'object' || value == null) {
+    return false;
+  }
+
+  const choice = value as Partial<TodayQuizChoice>;
+
+  return typeof choice.id === 'string' && typeof choice.text === 'string';
 }

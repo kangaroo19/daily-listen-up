@@ -44,7 +44,7 @@ if (quiz?.quizDate !== quizDate) {
 }
 
 if (quiz?.audioStoragePath !== audioStoragePath) {
-  throw new Error(`Sample quiz audio path mismatch: ${quiz?.audioStoragePath}`);
+  throw new Error('Sample quiz audio path mismatch.');
 }
 
 if (!Array.isArray(quiz?.choices) || quiz.choices.length !== sampleQuiz.choices.length) {
@@ -54,10 +54,10 @@ if (!Array.isArray(quiz?.choices) || quiz.choices.length !== sampleQuiz.choices.
 const [audioExists] = await bucket.file(audioStoragePath).exists();
 
 if (!audioExists) {
-  throw new Error(`Missing sample storage object: ${audioStoragePath}`);
+  throw new Error('Missing sample storage object.');
 }
 
 console.log(`Verified ${collections.quizzes}/${quizDate}`);
-console.log(`Verified gs://${storageBucket}/${audioStoragePath}`);
+console.log(`Verified sample audio object in ${storageBucket}.`);
 console.log('Public quiz response fields: quizDate, audioUrl, choices');
-console.log('Server-only quiz fields: correctChoiceIds, script, promotionAmount, audioStoragePath');
+console.log('Verified server-only quiz fields remain outside the public response.');

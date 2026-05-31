@@ -4,6 +4,7 @@ import { collections } from '../domain/collections.js';
 import { handleCheckTodayQuiz } from './checkTodayQuiz.js';
 import { handleLoginToss } from './loginToss.js';
 import { handleRewardStatus } from './rewardStatus.js';
+import { handleQuizAudio, handleTodayQuiz } from './todayQuiz.js';
 import { sendJson, sendNotImplemented } from './responses.js';
 
 type RouteHandler = (req: Request, res: Response) => void | Promise<void>;
@@ -11,13 +12,8 @@ type RouteHandler = (req: Request, res: Response) => void | Promise<void>;
 const routes: Record<string, RouteHandler> = {
   'POST /api/login/toss': handleLoginToss,
   'GET /api/check-today-quiz': handleCheckTodayQuiz,
-  'GET /api/today-quiz': (_req, res) => {
-    sendNotImplemented(res, 'GET /api/today-quiz', '04-home-today-quiz-entry and 05-audio-multiple-choice-quiz', {
-      publicResponseFields: ['quizDate', 'audioUrl', 'choices'],
-      serverOnlyQuizFields: ['correctChoiceIds', 'script', 'promotionAmount', 'audioStoragePath'],
-      storageBoundary: 'audioStoragePath is converted to audioUrl on the server.',
-    });
-  },
+  'GET /api/today-quiz': handleTodayQuiz,
+  'GET /api/quiz-audio': handleQuizAudio,
   'GET /api/reward-status': handleRewardStatus,
   'POST /api/answer-result': (_req, res) => {
     sendNotImplemented(res, 'POST /api/answer-result', '06-answer-submit-interstitial-result', {

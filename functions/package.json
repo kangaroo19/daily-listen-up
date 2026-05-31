@@ -10,7 +10,8 @@
     "seed:sample": "npm run build && node lib/scripts/seedSampleData.js",
     "verify:sample": "npm run build && node lib/scripts/verifySampleData.js",
     "verify:login-session": "npm run build && node lib/scripts/verifyLoginSession.js",
-    "verify:home-entry": "npm run build && node lib/scripts/verifyHomeEntry.js"
+    "verify:home-entry": "npm run build && node lib/scripts/verifyHomeEntry.js",
+    "verify:today-quiz": "npm run build && node lib/scripts/verifyTodayQuiz.js"
   },
   "engines": {
     "node": "20"

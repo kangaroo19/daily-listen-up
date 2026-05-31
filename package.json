@@ -4,14 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "granite dev",
     "typecheck": "tsc --noEmit",
     "build": "tsc -b && vite build",
     "functions:build": "npm --prefix functions run build",
     "functions:test": "npm --prefix functions test",
     "firebase:emulators": "firebase emulators:start --project daily-listen-up-dev",
     "firebase:seed": "npm --prefix functions run seed:sample",
-    "firebase:verify-sample": "npm --prefix functions run verify:sample"
+    "firebase:verify-sample": "npm --prefix functions run verify:sample",
+    "firebase:verify-login-session": "npm --prefix functions run verify:login-session"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "latest",

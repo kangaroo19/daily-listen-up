@@ -240,6 +240,10 @@
 - 날짜 기준은 서버 KST 기준으로 판정한다.
 - 인가 코드는 클라이언트에서 장기간 저장하지 않는다.
 - 토스 access token, refresh token 같은 민감한 정보는 서버에서만 다룬다.
+- 토스 `apps-in-toss-api.toss.im` 서버 API 호출은 mTLS 인증을 사용한다.
+- 로컬 개발에서는 서버 전용 환경변수로 mTLS 인증서/개인키 파일 경로를 주입할 수 있다.
+- Firebase Functions 배포 환경에서는 mTLS 인증서/개인키를 Firebase Secret Manager로 주입한다.
+- mTLS 인증서와 개인키는 클라이언트 번들, 저장소, 배포 산출물에 포함하지 않는다.
 - 프론트에는 토스 access token이나 원본 `userKey`를 내려주지 않는다.
 - 앱 세션 토큰 만료는 토스 로그인 연결 자체를 끊는 정책이 아니다.
 - 문서 ID에는 원본 `userKey`를 직접 쓰지 않고 해시 또는 내부 ID를 사용한다.

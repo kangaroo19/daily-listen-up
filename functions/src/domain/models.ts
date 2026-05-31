@@ -35,6 +35,12 @@ export type UserProgress = {
   rewardReviewRequired: boolean;
 };
 
+export type User = {
+  userId: string;
+  userKey: string;
+  loggedInAt: FirebaseFirestore.Timestamp;
+};
+
 export type AppSession = {
   sessionTokenId: string;
   userId: string;

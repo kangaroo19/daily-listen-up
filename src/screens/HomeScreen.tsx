@@ -2,12 +2,22 @@ import { Button } from "@toss/tds-mobile";
 import { useToast } from "@toss/tds-mobile";
 import { useState } from "react";
 import { requestTossLogin } from "../integrations/toss";
-import { postTossLogin } from "../services/apiClient";
+import { getCheckTodayQuiz, getRewardStatus, postTossLogin } from "../services/apiClient";
 import { startLogin } from "../services/startLogin";
 
-export function HomeScreen() {
+type HomeScreenProps = {
+  onEnterQuiz: () => void;
+};
+
+export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
   const { openToast } = useToast();
   const [isStarting, setIsStarting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  function showToast(message: string) {
+    setToastMessage(message);
+    openToast(message);
+  }
 
   async function handleStartClick() {
     if (isStarting) {
@@ -16,14 +26,50 @@ export function HomeScreen() {
 
     setIsStarting(true);
 
+    const loginFailureMessage = "로그인을 완료하지 못했어요. 다시 시작해 주세요.";
+    const statusFailureMessage = "상태를 확인하지 못했어요. 다시 시도해 주세요.";
+
     try {
-      await startLogin({
+      const appSession = await startLogin({
         requestTossLogin,
         postTossLogin,
       });
+
+      let todayQuiz;
+
+      try {
+        todayQuiz = await getCheckTodayQuiz(appSession.appSessionToken);
+      } catch {
+        showToast(statusFailureMessage);
+        return;
+      }
+
+      if (!todayQuiz.hasTodayQuiz) {
+        showToast("오늘의 문제가 아직 준비되지 않았어요.");
+        return;
+      }
+
+      let rewardStatus;
+
+      try {
+        rewardStatus = await getRewardStatus(appSession.appSessionToken);
+      } catch {
+        showToast(statusFailureMessage);
+        return;
+      }
+
+      if (rewardStatus.progressStatus === "completed") {
+        showToast(
+          rewardStatus.rewardStatus === "failed"
+            ? "포인트 지급 확인이 필요해요"
+            : "오늘 문제풀이를 완료했습니다",
+        );
+        return;
+      }
+
+      onEnterQuiz();
     } catch {
-      const message = "로그인을 완료하지 못했어요. 다시 시작해 주세요.";
-      openToast(message);
+      showToast(loginFailureMessage);
     } finally {
       setIsStarting(false);
     }
@@ -45,6 +91,11 @@ export function HomeScreen() {
       >
         시작하기
       </Button>
+      {toastMessage != null && (
+        <p className="toast-message" role="alert">
+          {toastMessage}
+        </p>
+      )}
     </section>
   );
 }

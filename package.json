@@ -12,7 +12,8 @@
     "firebase:emulators": "firebase emulators:start --project daily-listen-up-dev",
     "firebase:seed": "npm --prefix functions run seed:sample",
     "firebase:verify-sample": "npm --prefix functions run verify:sample",
-    "firebase:verify-login-session": "npm --prefix functions run verify:login-session"
+    "firebase:verify-login-session": "npm --prefix functions run verify:login-session",
+    "firebase:verify-home-entry": "npm --prefix functions run verify:home-entry"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "latest",

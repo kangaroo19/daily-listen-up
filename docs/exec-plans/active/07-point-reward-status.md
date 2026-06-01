@@ -23,6 +23,7 @@
 - 지급 상태는 `pending`, `success`, `failed` 중 하나로 저장하고 `userProgress.rewardStatus`와 맞춘다.
 - `GET /api/reward-status`는 오늘 문제의 `progressStatus`와 `rewardStatus`를 함께 반환한다.
 - 홈과 결과 화면에서 지급 상태를 재조회할 수 있는 클라이언트 경계를 준비한다.
+- 샌드박스/검증 환경에서는 Toss 비게임 프로모션 지급 요청에 테스트 프로모션 코드를 사용한다.
 
 ## 제외 범위
 
@@ -35,6 +36,7 @@
 ## 확인 필요
 
 - Toss 비게임 프로모션 지급 API의 실제 요청/응답 필드와 멱등성 키 이름은 구현 시 공식 문서와 운영 설정을 확인해 확정한다.
+- 테스트 프로모션 코드의 환경 변수명과 요청 필드 매핑은 구현 전 확인한다. 운영 프로모션 코드나 운영 키를 코드에 하드코딩하지 않는다.
 - `rewardStatus = pending`을 언제 `success` 또는 `failed`로 전환할지, 동기 응답 기준인지 별도 확인 API 기준인지는 구현 시 확인한다.
 
 ## 작업 체크리스트
@@ -45,6 +47,7 @@
 - [ ] 기존 지급 기록이 있으면 추가 지급 요청을 하지 않고 저장된 `rewardStatus`를 반환한다.
 - [ ] 기존 지급 기록이 없으면 `promotionKey`, `userId`, `quizDate`, `amount`, `status`를 포함한 지급 기록을 생성한다.
 - [ ] 토스 포인트 지급 요청에 필요한 민감한 값은 서버 환경 변수 또는 서버 전용 설정에서만 읽는다.
+- [ ] 샌드박스/검증 환경의 토스 포인트 지급 요청에는 테스트 프로모션 코드를 사용하고, 클라이언트에는 노출하지 않는다.
 - [ ] 지급 요청 시작 시 `rewardStatus = pending`으로 저장한다.
 - [ ] 지급 성공 응답이면 `rewardGrants.status`와 `userProgress.rewardStatus`를 `success`로 저장한다.
 - [ ] 지급 실패 응답이면 `rewardGrants.status`와 `userProgress.rewardStatus`를 `failed`로 저장하고 `rewardReviewRequired` 기준을 남긴다.
@@ -63,6 +66,7 @@
 - [ ] 지급 요청 중 또는 확인 중 상태를 `pending`으로 조회할 수 있다.
 - [ ] `GET /api/reward-status`가 `progressStatus`와 `rewardStatus`를 모두 반환한다.
 - [ ] 지급 기록이 없는 사용자는 `rewardStatus = none`으로 조회된다.
+- [ ] 테스트 프로모션 코드는 서버 전용 환경 변수 또는 서버 설정에서만 사용되고 클라이언트 번들/응답에 노출되지 않는다.
 - [ ] 클라이언트 코드에 포인트 지급 비밀키나 Toss 서버 토큰이 노출되지 않는다.
 - [ ] 타입 검사, Functions 검증, 프론트 빌드, 관련 테스트 또는 수동 검증이 통과한다.
 

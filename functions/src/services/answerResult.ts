@@ -1,8 +1,10 @@
 import type { ProgressStatus, Quiz, RewardStatus, UserProgress } from '../domain/models.js';
 import { findPublishedQuizByDate } from '../repositories/quizRepository.js';
 import { findUserProgress, saveUserProgress } from '../repositories/userProgressRepository.js';
+import { grantPointReward } from './pointReward.js';
 import { requireAppSession } from './sessionBoundary.js';
 import type { AppSessionContext } from './sessionBoundary.js';
+import type { PointRewardResult } from './pointReward.js';
 
 export type AnswerResultRequest = {
   token: string;
@@ -21,6 +23,12 @@ export type AnswerResultDependencies = {
   findPublishedQuizByDate(quizDate: string): Promise<Quiz | null>;
   findUserProgress(userId: string, quizDate: string): Promise<UserProgress | null>;
   saveUserProgress(progress: UserProgress): Promise<void>;
+  grantPointReward(request: {
+    userId: string;
+    quizDate: string;
+    amount: number;
+    progress: UserProgress;
+  }): Promise<PointRewardResult>;
 };
 
 const defaultDependencies: AnswerResultDependencies = {
@@ -28,6 +36,7 @@ const defaultDependencies: AnswerResultDependencies = {
   findPublishedQuizByDate,
   findUserProgress,
   saveUserProgress,
+  grantPointReward,
 };
 
 export class AnswerResultError extends Error {
@@ -59,7 +68,7 @@ export async function submitAnswerResult(
 
   const isCorrect = hasExactChoiceMatch(request.selectedChoiceIds, quiz.correctChoiceIds);
   const nextProgressStatus: ProgressStatus = isCorrect ? 'completed' : 'wrong';
-  const nextRewardStatus: RewardStatus = 'none';
+  let nextRewardStatus: RewardStatus = 'none';
   const nextProgress: UserProgress = {
     userId: session.userId,
     quizDate: request.quizDate,
@@ -74,10 +83,20 @@ export async function submitAnswerResult(
 
   await dependencies.saveUserProgress(nextProgress);
 
+  if (isCorrect) {
+    const rewardResult = await dependencies.grantPointReward({
+      userId: session.userId,
+      quizDate: request.quizDate,
+      amount: quiz.promotionAmount,
+      progress: nextProgress,
+    });
+    nextRewardStatus = rewardResult.rewardStatus;
+  }
+
   return {
     isCorrect,
     progressStatus: nextProgress.progressStatus,
-    rewardStatus: nextProgress.rewardStatus,
+    rewardStatus: nextRewardStatus,
   };
 }
 

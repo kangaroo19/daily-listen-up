@@ -1,7 +1,7 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { collections } from '../domain/collections.js';
-import type { AppSession, Quiz, UserProgress } from '../domain/models.js';
+import type { AppSession, Quiz, RewardGrant, User, UserProgress } from '../domain/models.js';
 import { sampleQuiz } from '../sample/sampleQuiz.js';
 import { createAppSessionToken, hashAppSessionToken } from '../services/loginSession.js';
 import { getKstDateString } from '../utils/kstDate.js';
@@ -20,9 +20,11 @@ const sessionTokenId = hashAppSessionToken(token);
 const userId = 'verify_answer_result_user';
 const quizRef = db.collection(collections.quizzes).doc(quizDate);
 const sessionRef = db.collection(collections.appSessions).doc(sessionTokenId);
+const userRef = db.collection(collections.users).doc(userId);
 const progressRef = db.collection(collections.userProgress).doc(`${userId}_${quizDate}`);
+const rewardGrantRef = db.collection(collections.rewardGrants).doc(`${userId}_${quizDate}`);
 
-await Promise.all([quizRef.delete(), sessionRef.delete(), progressRef.delete()]);
+await Promise.all([quizRef.delete(), sessionRef.delete(), userRef.delete(), progressRef.delete(), rewardGrantRef.delete()]);
 
 try {
   await sessionRef.set({
@@ -30,6 +32,11 @@ try {
     userId,
     expiresAt: Timestamp.fromDate(new Date(Date.now() + 60 * 60 * 1000)),
   } satisfies AppSession);
+  await userRef.set({
+    userId,
+    userKey: 'verify_answer_result_toss_user_key',
+    loggedInAt: Timestamp.fromDate(new Date()),
+  } satisfies User);
 
   await quizRef.set({
     ...sampleQuiz,
@@ -43,19 +50,27 @@ try {
     throw new Error(`Expected unauthorized answer-result response: ${JSON.stringify(unauthorized)}`);
   }
 
+  await rewardGrantRef.set({
+    userId,
+    quizDate,
+    promotionKey: 'existing_promotion_key',
+    amount: sampleQuiz.promotionAmount,
+    status: 'success',
+  } satisfies RewardGrant);
+
   const firstCorrect = await postAnswerResult(['choice-b', 'choice-e'], token);
 
   if (
     firstCorrect.status !== 200 ||
     firstCorrect.body.isCorrect !== true ||
     firstCorrect.body.progressStatus !== 'completed' ||
-    firstCorrect.body.rewardStatus !== 'none'
+    firstCorrect.body.rewardStatus !== 'success'
   ) {
     throw new Error(`Expected first correct answer-result response: ${JSON.stringify(firstCorrect)}`);
   }
 
   assertPublicAnswerResultBody(firstCorrect.body);
-  await assertProgress({ progressStatus: 'completed', rewardStatus: 'none', isCorrect: true, attemptCount: 1 });
+  await assertProgress({ progressStatus: 'completed', rewardStatus: 'success', isCorrect: true, attemptCount: 1 });
 
   await progressRef.delete();
 
@@ -91,12 +106,12 @@ try {
     retryCorrect.status !== 200 ||
     retryCorrect.body.isCorrect !== true ||
     retryCorrect.body.progressStatus !== 'completed' ||
-    retryCorrect.body.rewardStatus !== 'none'
+    retryCorrect.body.rewardStatus !== 'success'
   ) {
     throw new Error(`Expected retry correct answer-result response: ${JSON.stringify(retryCorrect)}`);
   }
 
-  await assertProgress({ progressStatus: 'completed', rewardStatus: 'none', isCorrect: true, attemptCount: 2 });
+  await assertProgress({ progressStatus: 'completed', rewardStatus: 'success', isCorrect: true, attemptCount: 2 });
 
   await progressRef.set({
     userId,
@@ -165,7 +180,7 @@ try {
   console.log('Verified exact answer matching, retry consumption by status transition, and wrong/completed progress writes.');
   console.log('Verified POST /api/answer-result response exposes only isCorrect, progressStatus, and rewardStatus.');
 } finally {
-  await Promise.all([quizRef.delete(), sessionRef.delete(), progressRef.delete()]);
+  await Promise.all([quizRef.delete(), sessionRef.delete(), userRef.delete(), progressRef.delete(), rewardGrantRef.delete()]);
 }
 
 async function postAnswerResult(

@@ -16,3 +16,10 @@ export async function findRewardGrant(userId: string, quizDate: string): Promise
 
   return snapshot.docs[0].data() as RewardGrant;
 }
+
+export async function saveRewardGrant(rewardGrant: RewardGrant): Promise<void> {
+  await getFirestore()
+    .collection(collections.rewardGrants)
+    .doc(`${rewardGrant.userId}_${rewardGrant.quizDate}`)
+    .set(rewardGrant);
+}

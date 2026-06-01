@@ -55,6 +55,26 @@ test('accepts a first correct answer and stores completed progress', async () =>
   });
 });
 
+test('returns latest reward status after a correct answer enters the point reward flow', async () => {
+  const result = await submitAnswerResult(
+    {
+      token: 'app_session_token',
+      quizDate: '2026-05-31',
+      selectedChoiceIds: ['choice-e', 'choice-b'],
+    },
+    createDependencies({
+      findUserProgress: async () => null,
+      grantPointReward: async () => ({ rewardStatus: 'success' }),
+    }),
+  );
+
+  assert.deepEqual(result, {
+    isCorrect: true,
+    progressStatus: 'completed',
+    rewardStatus: 'success',
+  });
+});
+
 test('stores wrong progress when selected choices do not exactly match', async () => {
   const savedProgress: UserProgress[] = [];
   const result = await submitAnswerResult(
@@ -163,6 +183,7 @@ function createDependencies(overrides: Partial<AnswerResultDependencies> = {}): 
     findPublishedQuizByDate: async () => quiz,
     findUserProgress: async () => null,
     saveUserProgress: async () => undefined,
+    grantPointReward: async () => ({ rewardStatus: 'none' }),
     ...overrides,
   };
 }

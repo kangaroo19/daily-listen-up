@@ -14,7 +14,8 @@
     "firebase:verify-sample": "npm --prefix functions run verify:sample",
     "firebase:verify-login-session": "npm --prefix functions run verify:login-session",
     "firebase:verify-home-entry": "npm --prefix functions run verify:home-entry",
-    "firebase:verify-today-quiz": "npm --prefix functions run verify:today-quiz"
+    "firebase:verify-today-quiz": "npm --prefix functions run verify:today-quiz",
+    "firebase:verify-answer-result": "npm --prefix functions run verify:answer-result"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "latest",

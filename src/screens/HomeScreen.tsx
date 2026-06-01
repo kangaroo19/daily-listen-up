@@ -1,5 +1,4 @@
-import { Button } from "@toss/tds-mobile";
-import { useToast } from "@toss/tds-mobile";
+import { Button, useToast } from "@toss/tds-mobile";
 import { useState } from "react";
 import { requestTossLogin } from "../integrations/toss";
 import { getCheckTodayQuiz, getRewardStatus, postTossLogin } from "../services/apiClient";
@@ -12,12 +11,6 @@ type HomeScreenProps = {
 export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
   const { openToast } = useToast();
   const [isStarting, setIsStarting] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  function showToast(message: string) {
-    setToastMessage(message);
-    openToast(message);
-  }
 
   async function handleStartClick() {
     if (isStarting) {
@@ -40,12 +33,12 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
       try {
         todayQuiz = await getCheckTodayQuiz(appSession.appSessionToken);
       } catch {
-        showToast(statusFailureMessage);
+        openToast(statusFailureMessage);
         return;
       }
 
       if (!todayQuiz.hasTodayQuiz) {
-        showToast("오늘의 문제가 아직 준비되지 않았어요.");
+        openToast("오늘의 문제가 아직 준비되지 않았어요.");
         return;
       }
 
@@ -54,12 +47,12 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
       try {
         rewardStatus = await getRewardStatus(appSession.appSessionToken);
       } catch {
-        showToast(statusFailureMessage);
+        openToast(statusFailureMessage);
         return;
       }
 
       if (rewardStatus.progressStatus === "completed") {
-        showToast(
+        openToast(
           rewardStatus.rewardStatus === "failed"
             ? "포인트 지급 확인이 필요해요"
             : "오늘 문제풀이를 완료했습니다",
@@ -69,7 +62,7 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
 
       onEnterQuiz();
     } catch {
-      showToast(loginFailureMessage);
+      openToast(loginFailureMessage);
     } finally {
       setIsStarting(false);
     }
@@ -91,11 +84,6 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
       >
         시작하기
       </Button>
-      {toastMessage != null && (
-        <p className="toast-message" role="alert">
-          {toastMessage}
-        </p>
-      )}
     </section>
   );
 }

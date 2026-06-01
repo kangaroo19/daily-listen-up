@@ -16,3 +16,10 @@ export async function findUserProgress(userId: string, quizDate: string): Promis
 
   return snapshot.docs[0].data() as UserProgress;
 }
+
+export async function saveUserProgress(progress: UserProgress): Promise<void> {
+  await getFirestore()
+    .collection(collections.userProgress)
+    .doc(`${progress.userId}_${progress.quizDate}`)
+    .set(progress);
+}

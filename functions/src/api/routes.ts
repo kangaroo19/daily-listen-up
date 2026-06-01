@@ -1,6 +1,7 @@
 import type { Response } from 'express';
 import type { Request } from 'firebase-functions/v2/https';
 import { collections } from '../domain/collections.js';
+import { handleAnswerResult } from './answerResult.js';
 import { handleCheckTodayQuiz } from './checkTodayQuiz.js';
 import { handleLoginToss } from './loginToss.js';
 import { handleRewardStatus } from './rewardStatus.js';
@@ -15,12 +16,7 @@ const routes: Record<string, RouteHandler> = {
   'GET /api/today-quiz': handleTodayQuiz,
   'GET /api/quiz-audio': handleQuizAudio,
   'GET /api/reward-status': handleRewardStatus,
-  'POST /api/answer-result': (_req, res) => {
-    sendNotImplemented(res, 'POST /api/answer-result', '06-answer-submit-interstitial-result', {
-      serverOnly: ['correctChoiceIds', 'promotionAmount'],
-      collections: [collections.quizzes, collections.userProgress, collections.rewardGrants],
-    });
-  },
+  'POST /api/answer-result': handleAnswerResult,
   'POST /api/rewarded-ad-complete': (_req, res) => {
     sendNotImplemented(res, 'POST /api/rewarded-ad-complete', '08-result-retry-script', {
       purposes: ['retry', 'script'],

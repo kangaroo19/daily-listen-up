@@ -39,6 +39,7 @@
 
 - Toss Ads 보상형 광고 SDK의 실제 `userEarnedReward` 이벤트명과 실패/취소 이벤트명은 구현 시 사용 중인 SDK 문서를 확인해 확정한다.
 - 결과 화면에서 지급 상태를 주기적으로 재조회할지, 진입 시점 응답만 표시할지는 07번 completed 결과와 구현 시 확인한다.
+- Toss 테스트앱/샌드박스앱에서는 인앱광고 기능을 사용할 수 없으므로, 샌드박스 검증 시 `.env.local`의 `VITE_SKIP_ANSWER_RESULT_INTERSTITIAL=true` 값을 사용해 광고 표시 단계를 건너뛴다.
 
 ## 작업 체크리스트
 
@@ -58,6 +59,7 @@
 - [ ] `purpose = script` 성공 응답의 `script`를 같은 결과 화면 안에 펼쳐 보여준다.
 - [ ] 스크립트 보기 후에도 오답 사용자는 재도전할 수 있게 유지한다.
 - [ ] 보상형 광고 취소, 실패, API 실패 시 결과 화면에 머무르고 `광고를 완료하지 못했어요. 다시 시도해 주세요.` 안내를 보여준다.
+- [ ] `VITE_SKIP_ANSWER_RESULT_INTERSTITIAL=true`이면 Toss 테스트앱/샌드박스 검증을 위해 보상형 광고 표시 단계를 건너뛰고 후속 흐름을 확인할 수 있게 한다.
 - [ ] 재도전 횟수는 화면에 표시하지 않는다.
 
 ## 검증 체크리스트
@@ -66,6 +68,7 @@
 - [ ] 오답 결과 화면에 오답 문구와 `광고 보고 재도전` 버튼이 표시된다.
 - [ ] 정답과 오답 결과 화면 모두에 `광고 보고 스크립트 보기` 버튼이 표시된다.
 - [ ] 보상형 광고의 `userEarnedReward` 이벤트 전에는 `POST /api/rewarded-ad-complete`가 호출되지 않는다.
+- [ ] `VITE_SKIP_ANSWER_RESULT_INTERSTITIAL=true` 샌드박스 검증 환경에서는 광고 SDK 미지원으로 인한 실패 없이 재도전과 스크립트 보기 후속 흐름을 확인할 수 있다.
 - [ ] 재도전 요청은 `quizDate`, `purpose = retry`를 포함한다.
 - [ ] 재도전 성공 후 서버 상태가 `progressStatus = retry_unlocked`로 확인된다.
 - [ ] 재도전 성공 후 같은 문제 풀이 화면으로 돌아간다.

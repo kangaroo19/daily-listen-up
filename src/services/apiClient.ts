@@ -26,6 +26,12 @@ export type TodayQuizResponse = {
   choices: TodayQuizChoice[];
 };
 
+export type AnswerResultResponse = {
+  isCorrect: boolean;
+  progressStatus: Exclude<ProgressStatus, 'not_started' | 'retry_unlocked'>;
+  rewardStatus: RewardStatus;
+};
+
 export async function postTossLogin(loginResult: TossLoginResult): Promise<AppSession> {
   const response = await fetch(`${clientEnv.apiBaseUrl}/api/login/toss`, {
     method: 'POST',
@@ -127,6 +133,43 @@ export async function getTodayQuiz(appSessionToken: string, signal?: AbortSignal
     quizDate: body.quizDate,
     audioUrl: body.audioUrl,
     choices: body.choices,
+  };
+}
+
+export async function postAnswerResult(
+  appSessionToken: string,
+  request: {
+    quizDate: string;
+    selectedChoiceIds: string[];
+  },
+): Promise<AnswerResultResponse> {
+  const response = await fetch(`${clientEnv.apiBaseUrl}/api/answer-result`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${appSessionToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to submit answer result.');
+  }
+
+  const body = (await response.json()) as Partial<AnswerResultResponse>;
+
+  if (
+    typeof body.isCorrect !== 'boolean' ||
+    (body.progressStatus !== 'wrong' && body.progressStatus !== 'completed') ||
+    !isRewardStatus(body.rewardStatus)
+  ) {
+    throw new Error('Invalid answer result response.');
+  }
+
+  return {
+    isCorrect: body.isCorrect,
+    progressStatus: body.progressStatus,
+    rewardStatus: body.rewardStatus,
   };
 }
 

@@ -16,7 +16,7 @@ if (getApps().length === 0) {
 }
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
-const fixturePath = join(currentDir, '../../src/fixtures/sample-audio-placeholder.mp3');
+const fixturePath = join(currentDir, '../../src/fixtures/sample.mp3');
 const db = getFirestore();
 const bucket = getStorage().bucket();
 const quizDate = getKstDateString();

@@ -1,9 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@toss/tds-mobile';
-import { getTodayQuiz, type TodayQuizResponse } from '../services/apiClient';
+import { Button, useToast } from '@toss/tds-mobile';
+import { showTossAd } from '../integrations/tossAds';
+import { getTodayQuiz, postAnswerResult, type AnswerResultResponse, type TodayQuizResponse } from '../services/apiClient';
 import { getAppSessionToken } from '../services/appSession';
 
-export function QuizScreen() {
+type QuizScreenProps = {
+  onAnswerResult: (result: AnswerResultResponse) => void;
+};
+
+export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
+  const { openToast } = useToast();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [quiz, setQuiz] = useState<TodayQuizResponse | null>(null);
   const [selectedChoiceIds, setSelectedChoiceIds] = useState<string[]>([]);
@@ -12,6 +18,7 @@ export function QuizScreen() {
   const [hasStartedAudio, setHasStartedAudio] = useState(false);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [hasFinishedAudio, setHasFinishedAudio] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
@@ -33,6 +40,7 @@ export function QuizScreen() {
       setHasStartedAudio(false);
       setIsAudioPlaying(false);
       setHasFinishedAudio(false);
+      setIsSubmitting(false);
 
       try {
         const todayQuiz = await getTodayQuiz(appSessionToken, controller.signal);
@@ -66,7 +74,7 @@ export function QuizScreen() {
     [quiz, selectedChoiceIds],
   );
 
-  const canSubmit = submissionBoundary != null && selectedChoiceIds.length > 0;
+  const canSubmit = hasFinishedAudio && submissionBoundary != null && selectedChoiceIds.length > 0 && !isSubmitting;
 
   async function handleStartAudio() {
     const audio = audioRef.current;
@@ -94,6 +102,25 @@ export function QuizScreen() {
     setSelectedChoiceIds((current) =>
       current.includes(choiceId) ? current.filter((selectedId) => selectedId !== choiceId) : [...current, choiceId],
     );
+  }
+
+  async function handleSubmitAnswer() {
+    const appSessionToken = getAppSessionToken();
+
+    if (!canSubmit || submissionBoundary == null || appSessionToken == null) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await showTossAd('answer-result');
+      const answerResult = await postAnswerResult(appSessionToken, submissionBoundary);
+      onAnswerResult(answerResult);
+    } catch {
+      openToast('답안 제출을 완료하지 못했어요. 다시 시도해 주세요.');
+      setIsSubmitting(false);
+    }
   }
 
   if (isLoading) {
@@ -170,7 +197,7 @@ export function QuizScreen() {
       )}
 
       <div className="quiz-bottom-action">
-        <Button display="full" disabled={!canSubmit}>
+        <Button display="full" disabled={!canSubmit} loading={isSubmitting} onClick={handleSubmitAnswer}>
           <span className="submit-button-content">
             <span className="video-icon" aria-hidden="true" />
             답안 제출

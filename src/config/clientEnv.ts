@@ -1,6 +1,8 @@
 export const clientEnv = {
   apiBaseUrl: import.meta.env.VITE_APP_API_BASE_URL,
   tossAppName: import.meta.env.VITE_TOSS_APP_NAME,
+  tossInterstitialAdGroupId: import.meta.env.VITE_TOSS_INTERSTITIAL_AD_GROUP_ID,
+  skipAnswerResultInterstitial: import.meta.env.VITE_SKIP_ANSWER_RESULT_INTERSTITIAL === 'true',
   firebase: {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,

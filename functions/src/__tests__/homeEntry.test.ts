@@ -34,7 +34,7 @@ test('uses reward grant status when a reward grant exists', () => {
     userId: 'user_1',
     quizDate: '2026-05-31',
     promotionKey: 'promotion_1',
-    amount: 10,
+    amount: 5,
     status: 'failed',
   };
 

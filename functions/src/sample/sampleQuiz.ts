@@ -13,5 +13,5 @@ export const sampleQuiz: Quiz = {
   ],
   correctChoiceIds: ['choice-b', 'choice-e'],
   script: 'Excuse me, could you tell me how to get to the station tomorrow morning?',
-  promotionAmount: 10,
+  promotionAmount: 5,
 };

@@ -17,7 +17,7 @@ const quiz: Quiz = {
   ],
   correctChoiceIds: ['choice-a'],
   script: 'Server only.',
-  promotionAmount: 10,
+  promotionAmount: 5,
 };
 
 test('loads today public quiz after validating the app session', async () => {

@@ -34,6 +34,7 @@
   - 근거: `functions/src/__tests__/answerResult.test.ts`, `functions/src/scripts/verifyAnswerResult.ts`.
 - [x] `GET /api/reward-status`가 앱 세션, KST 오늘 날짜, `userProgress`, `rewardGrants`를 기준으로 `progressStatus`와 `rewardStatus`를 함께 반환한다.
   - 근거: 기존 `functions/src/api/rewardStatus.ts`, `functions/src/services/homeEntry.ts`, `functions/src/__tests__/homeEntry.test.ts`.
+  - 추가 반영: `rewardGrants.status = pending`이면 `functions/src/services/pointReward.ts`의 `refreshPendingRewardStatus()`가 Toss `execution-result`를 재조회하고, `success` 또는 `failed`로 확정되면 `rewardGrants`와 `userProgress.rewardStatus`를 갱신한다.
 - [x] 진행 기록이 없으면 `progressStatus = not_started`, 지급 기록이 없으면 `rewardStatus = none`으로 반환한다.
   - 근거: `functions/src/__tests__/homeEntry.test.ts`.
 - [x] 홈 시작 흐름과 결과 화면이 `GET /api/reward-status`를 호출할 수 있는 클라이언트 API 경계를 갖춘다.
@@ -53,6 +54,7 @@
   - 근거: `npm --prefix functions run test`.
 - [x] 지급 요청 중 또는 확인 중 상태를 `pending`으로 조회할 수 있다.
   - 근거: `functions/src/__tests__/pointReward.test.ts`, `functions/src/__tests__/homeEntry.test.ts`.
+  - 추가 반영: 저장된 `pending` 지급 기록은 `GET /api/reward-status` 재조회 시 Toss `execution-result`를 다시 호출해 최신 지급 상태로 갱신할 수 있다.
 - [x] `GET /api/reward-status`가 `progressStatus`와 `rewardStatus`를 모두 반환한다.
   - 근거: `functions/src/__tests__/homeEntry.test.ts`.
 - [x] 지급 기록이 없는 사용자는 `rewardStatus = none`으로 조회된다.
@@ -74,13 +76,15 @@
 
 - `TossPromotionClient`를 추가해 비게임 프로모션 S2S API의 key 발급, 지급 실행, 지급 결과 조회 경계를 구현했다.
 - `grantPointReward()`를 추가해 `rewardGrants` 중복 조회, pending 저장, 성공/실패 상태 저장, `userProgress.rewardStatus` 동기화를 처리한다.
+- `refreshPendingRewardStatus()`를 추가해 기존 지급 기록이 `pending`인 경우 Toss `execution-result`를 재호출하고 확정된 상태를 저장한다.
 - `POST /api/answer-result` 정답 흐름에 포인트 지급 서비스를 연결해 최신 `rewardStatus`를 응답한다.
+- `GET /api/reward-status`는 저장된 지급 상태가 `pending`이면 서버에서 최신 Toss 지급 결과를 확인한 뒤 응답한다.
 - 기존 `verify:answer-result` 스크립트는 기존 지급 기록 경로를 사용해 외부 Toss 호출 없이 최신 `rewardStatus` 반영을 확인하도록 보강했다.
 - 서버 전용 환경 변수 예시 `TOSS_PROMOTION_CODE`를 추가했다.
 
 ## 검증 결과
 
-- `npm --prefix functions run test`: 통과, 21개 테스트.
+- `npm --prefix functions run test`: 통과, 23개 테스트.
 - `npm --prefix functions run verify:answer-result`: 통과. 기존 실행 중인 Emulator에 `GCLOUD_PROJECT`, `FIRESTORE_EMULATOR_HOST`, `FUNCTIONS_EMULATOR`를 지정해 연결했다.
 - `npm run typecheck`: 통과.
 - `npm run build`: 통과. Vite 번들 크기 경고는 기존처럼 발생했지만 빌드는 성공했다.
@@ -89,5 +93,5 @@
 
 - 08번 결과 화면은 `POST /api/answer-result` 응답의 `{ isCorrect, progressStatus, rewardStatus }`를 그대로 사용하면 된다.
 - 지급 상태 문구는 `pending`: `포인트 지급을 확인하고 있어요.`, `success`: `포인트 지급이 완료됐어요.`, `failed`: `포인트 지급을 완료하지 못했어요. 잠시 후 다시 확인하거나 고객센터에 문의해 주세요.` 기준이다.
-- 홈과 결과 화면에서 재조회가 필요하면 기존 `GET /api/reward-status` 클라이언트 경계인 `getRewardStatus()`를 사용한다.
+- 홈과 결과 화면에서 재조회가 필요하면 기존 `GET /api/reward-status` 클라이언트 경계인 `getRewardStatus()`를 사용한다. 저장된 지급 상태가 `pending`이면 이 API 호출 중 서버가 Toss `execution-result`를 다시 확인해 최신 상태로 갱신한다.
 - 실제 Toss 연동 환경에서는 서버 전용 `TOSS_PROMOTION_CODE`, `TOSS_API_BASE_URL`, `TOSS_MTLS_CERT_PATH`, `TOSS_MTLS_KEY_PATH`를 설정해야 한다.

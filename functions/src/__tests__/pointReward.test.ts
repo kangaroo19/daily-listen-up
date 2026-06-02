@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { grantPointReward } from '../services/pointReward.js';
+import { grantPointReward, refreshPendingRewardStatus } from '../services/pointReward.js';
 import type { PointRewardDependencies } from '../services/pointReward.js';
 import type { RewardGrant, User, UserProgress } from '../domain/models.js';
 
@@ -26,13 +26,13 @@ test('returns existing reward status without issuing a duplicate Toss promotion 
   let requestCount = 0;
   const savedProgress: UserProgress[] = [];
   const result = await grantPointReward(
-    { userId: 'user_1', quizDate: '2026-06-01', amount: 10, progress },
+    { userId: 'user_1', quizDate: '2026-06-01', amount: 5, progress },
     createDependencies({
       findRewardGrant: async () => ({
         userId: 'user_1',
         quizDate: '2026-06-01',
         promotionKey: 'existing_key',
-        amount: 10,
+        amount: 5,
         status: 'success',
       }),
       promotionClient: {
@@ -63,7 +63,7 @@ test('stores pending first, then success when Toss promotion execution succeeds'
   const savedGrants: RewardGrant[] = [];
   const savedProgress: UserProgress[] = [];
   const result = await grantPointReward(
-    { userId: 'user_1', quizDate: '2026-06-01', amount: 10, progress },
+    { userId: 'user_1', quizDate: '2026-06-01', amount: 5, progress },
     createDependencies({
       saveRewardGrant: async (grant) => {
         savedGrants.push(grant);
@@ -90,7 +90,7 @@ test('stores failed and review required when Toss promotion execution fails', as
   const savedGrants: RewardGrant[] = [];
   const savedProgress: UserProgress[] = [];
   const result = await grantPointReward(
-    { userId: 'user_1', quizDate: '2026-06-01', amount: 10, progress },
+    { userId: 'user_1', quizDate: '2026-06-01', amount: 5, progress },
     createDependencies({
       saveRewardGrant: async (grant) => {
         savedGrants.push(grant);
@@ -121,7 +121,7 @@ test('stores failed and review required when Toss promotion execution fails', as
 test('keeps pending when Toss promotion result is pending', async () => {
   const savedProgress: UserProgress[] = [];
   const result = await grantPointReward(
-    { userId: 'user_1', quizDate: '2026-06-01', amount: 10, progress },
+    { userId: 'user_1', quizDate: '2026-06-01', amount: 5, progress },
     createDependencies({
       saveUserProgress: async (nextProgress) => {
         savedProgress.push(nextProgress);
@@ -142,6 +142,78 @@ test('keeps pending when Toss promotion result is pending', async () => {
 
   assert.equal(result.rewardStatus, 'pending');
   assert.equal(savedProgress.at(-1)?.rewardStatus, 'pending');
+});
+
+test('refreshes pending reward grant status from Toss execution result', async () => {
+  const savedGrants: RewardGrant[] = [];
+  const savedProgress: UserProgress[] = [];
+  const rewardGrant: RewardGrant = {
+    userId: 'user_1',
+    quizDate: '2026-06-01',
+    promotionKey: 'promotion_key_1',
+    amount: 5,
+    status: 'pending',
+  };
+
+  const result = await refreshPendingRewardStatus(
+    { progress, rewardGrant },
+    createDependencies({
+      saveRewardGrant: async (grant) => {
+        savedGrants.push(grant);
+      },
+      saveUserProgress: async (nextProgress) => {
+        savedProgress.push(nextProgress);
+      },
+      promotionClient: {
+        async createPromotionKey() {
+          throw new Error('createPromotionKey should not be called');
+        },
+        async executePromotion() {
+          throw new Error('executePromotion should not be called');
+        },
+        async getExecutionResult() {
+          return 'SUCCESS';
+        },
+      },
+    }),
+  );
+
+  assert.equal(result.status, 'success');
+  assert.equal(savedGrants.at(-1)?.status, 'success');
+  assert.equal(savedProgress.at(-1)?.rewardStatus, 'success');
+  assert.equal(savedProgress.at(-1)?.rewardReviewRequired, false);
+});
+
+test('does not refresh a non-pending reward grant', async () => {
+  let requestCount = 0;
+  const rewardGrant: RewardGrant = {
+    userId: 'user_1',
+    quizDate: '2026-06-01',
+    promotionKey: 'promotion_key_1',
+    amount: 5,
+    status: 'success',
+  };
+
+  const result = await refreshPendingRewardStatus(
+    { progress, rewardGrant },
+    createDependencies({
+      promotionClient: {
+        async createPromotionKey() {
+          throw new Error('createPromotionKey should not be called');
+        },
+        async executePromotion() {
+          throw new Error('executePromotion should not be called');
+        },
+        async getExecutionResult() {
+          requestCount += 1;
+          return 'FAILED';
+        },
+      },
+    }),
+  );
+
+  assert.equal(result.status, 'success');
+  assert.equal(requestCount, 0);
 });
 
 function createDependencies(overrides: Partial<PointRewardDependencies> = {}): PointRewardDependencies {

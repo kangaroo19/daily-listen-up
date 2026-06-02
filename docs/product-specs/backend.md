@@ -193,7 +193,7 @@
 - `choices` - 타입: `array`, 역할: 선택지 목록. 각 항목은 선택지 ID와 문구를 포함한다
 - `correctChoiceIds` - 타입: `array<string>`, 역할: 정답 선택지 ID 목록. 서버 전용으로만 사용한다
 - `script` - 타입: `string`, 역할: 광고 보상 후 열람 가능한 듣기 스크립트
-- `promotionAmount` - 타입: `number`, 역할: 정답 시 지급할 토스 포인트 금액
+- `promotionAmount` - 타입: `number`, 역할: 정답 시 지급할 토스 포인트 금액. MVP 샘플 기준은 5원이다.
 
 ### `users`
 

@@ -16,6 +16,15 @@ export type PointRewardResult = {
   rewardStatus: RewardStatus;
 };
 
+export type PendingRewardRefreshRequest = {
+  progress: UserProgress;
+  rewardGrant: RewardGrant;
+};
+
+export type PendingRewardRefreshResult = {
+  status: Exclude<RewardStatus, 'none'>;
+};
+
 export type PointRewardDependencies = {
   findRewardGrant(userId: string, quizDate: string): Promise<RewardGrant | null>;
   saveRewardGrant(rewardGrant: RewardGrant): Promise<void>;
@@ -87,6 +96,74 @@ export async function grantPointReward(
     return saveFinalRewardStatus(request, mapPromotionExecutionStatus(executionStatus), promotionKey, dependencies);
   } catch {
     return saveFinalRewardStatus(request, 'failed', promotionKey, dependencies);
+  }
+}
+
+export async function refreshPendingRewardStatus(
+  request: PendingRewardRefreshRequest,
+  dependencies: PointRewardDependencies = defaultDependencies,
+): Promise<PendingRewardRefreshResult> {
+  if (request.rewardGrant.status !== 'pending') {
+    return {
+      status: request.rewardGrant.status,
+    };
+  }
+
+  const user = await dependencies.findUserById(request.rewardGrant.userId);
+
+  if (user == null || dependencies.promotionCode === '') {
+    console.error('Pending point reward refresh skipped before Toss request.', {
+      userId: request.rewardGrant.userId,
+      quizDate: request.rewardGrant.quizDate,
+      hasUser: user != null,
+      hasPromotionCode: dependencies.promotionCode !== '',
+      hasMtlsCertPath: process.env.TOSS_MTLS_CERT_PATH != null,
+      hasMtlsKeyPath: process.env.TOSS_MTLS_KEY_PATH != null,
+    });
+
+    return {
+      status: request.rewardGrant.status,
+    };
+  }
+
+  try {
+    const executionStatus = await dependencies.promotionClient.getExecutionResult({
+      userKey: user.userKey,
+      promotionCode: dependencies.promotionCode,
+      key: request.rewardGrant.promotionKey,
+    });
+    const rewardStatus = mapPromotionExecutionStatus(executionStatus);
+
+    if (rewardStatus === request.rewardGrant.status) {
+      return {
+        status: request.rewardGrant.status,
+      };
+    }
+
+    await Promise.all([
+      dependencies.saveRewardGrant({
+        ...request.rewardGrant,
+        status: rewardStatus,
+      }),
+      dependencies.saveUserProgress(createProgressWithRewardStatus(request.progress, rewardStatus)),
+    ]);
+
+    return {
+      status: rewardStatus,
+    };
+  } catch (error) {
+    console.error('Pending point reward refresh failed.', {
+      userId: request.rewardGrant.userId,
+      quizDate: request.rewardGrant.quizDate,
+      promotionKey: request.rewardGrant.promotionKey,
+      hasMtlsCertPath: process.env.TOSS_MTLS_CERT_PATH != null,
+      hasMtlsKeyPath: process.env.TOSS_MTLS_KEY_PATH != null,
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
+
+    return {
+      status: request.rewardGrant.status,
+    };
   }
 }
 

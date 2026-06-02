@@ -17,7 +17,7 @@ const quiz: Quiz = {
   ],
   correctChoiceIds: ['choice-b', 'choice-e'],
   script: 'Server only.',
-  promotionAmount: 10,
+  promotionAmount: 5,
 };
 
 test('accepts a first correct answer and stores completed progress', async () => {

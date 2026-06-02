@@ -146,7 +146,7 @@ try {
     userId,
     quizDate,
     promotionKey: 'verify_home_entry_promotion',
-    amount: 10,
+    amount: 5,
     status: 'failed',
   });
 

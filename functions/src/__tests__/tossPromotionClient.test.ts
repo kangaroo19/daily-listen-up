@@ -27,7 +27,7 @@ test('calls Toss promotion S2S endpoints with x-toss-user-key and server-only pr
     userKey: 'toss_user_key_1',
     promotionCode: 'TEST_PROMOTION_CODE',
     key,
-    amount: 10,
+    amount: 5,
   });
   const status = await client.getExecutionResult({
     userKey: 'toss_user_key_1',
@@ -48,7 +48,7 @@ test('calls Toss promotion S2S endpoints with x-toss-user-key and server-only pr
   assert.deepEqual(JSON.parse(String(requests[1].init.body)), {
     promotionCode: 'TEST_PROMOTION_CODE',
     key: 'promotion_key_1',
-    amount: 10,
+    amount: 5,
   });
 });
 

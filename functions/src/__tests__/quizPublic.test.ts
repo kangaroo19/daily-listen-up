@@ -14,7 +14,7 @@ test('keeps server-only quiz fields out of the public today quiz response', () =
     ],
     correctChoiceIds: ['a'],
     script: 'Server-only script',
-    promotionAmount: 10,
+    promotionAmount: 5,
   };
 
   const publicQuiz = toPublicTodayQuiz(quiz, 'http://127.0.0.1/audio.mp3');

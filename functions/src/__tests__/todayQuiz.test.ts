@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getPublicTodayQuiz } from '../services/todayQuiz.js';
-import type { Quiz } from '../domain/models.js';
+import type { Quiz, UserProgress } from '../domain/models.js';
 import type { TodayQuizDependencies } from '../services/todayQuiz.js';
 
 const quiz: Quiz = {
@@ -64,6 +64,27 @@ test('returns null when today has no published quiz', async () => {
   });
 });
 
+test('rejects quiz content when today progress is already completed', async () => {
+  let audioUrlCreated = false;
+
+  await assert.rejects(
+    () =>
+      getPublicTodayQuiz(
+        'app_session_token',
+        'http://127.0.0.1:5001/project/region/api/api',
+        createDependencies({
+          findUserProgress: async () => completedProgress,
+          createAudioUrl: async () => {
+            audioUrlCreated = true;
+            return 'http://127.0.0.1/audio.mp3';
+          },
+        }),
+      ),
+    /Today quiz entry is not allowed/,
+  );
+  assert.equal(audioUrlCreated, false);
+});
+
 test('does not load quiz content when the app session is invalid', async () => {
   const dependencies = createDependencies({
     requireAppSession: async () => {
@@ -80,11 +101,24 @@ test('does not load quiz content when the app session is invalid', async () => {
   );
 });
 
+const completedProgress: UserProgress = {
+  userId: 'user_1',
+  quizDate: '2026-05-31',
+  progressStatus: 'completed',
+  attemptCount: 1,
+  lastSubmittedChoiceIds: ['choice-a'],
+  isCorrect: true,
+  canViewScript: false,
+  rewardStatus: 'failed',
+  rewardReviewRequired: true,
+};
+
 function createDependencies(overrides: Partial<TodayQuizDependencies> = {}): TodayQuizDependencies {
   return {
     requireAppSession: async () => ({ sessionTokenId: 'session_1', userId: 'user_1' }),
     getTodayDateString: () => '2026-05-31',
     findPublishedQuizByDate: async () => quiz,
+    findUserProgress: async () => null,
     createAudioUrl: async () => 'http://127.0.0.1/audio.mp3',
     ...overrides,
   };

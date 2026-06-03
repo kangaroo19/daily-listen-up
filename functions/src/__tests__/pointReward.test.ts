@@ -118,6 +118,52 @@ test('stores failed and review required when Toss promotion execution fails', as
   assert.equal(savedProgress.at(-1)?.rewardReviewRequired, true);
 });
 
+test('stores a failed reward grant when reward setup cannot issue a Toss request', async () => {
+  const savedGrants: RewardGrant[] = [];
+  const savedProgress: UserProgress[] = [];
+  let requestCount = 0;
+  const result = await grantPointReward(
+    { userId: 'user_1', quizDate: '2026-06-01', amount: 5, progress },
+    createDependencies({
+      promotionCode: '',
+      saveRewardGrant: async (grant) => {
+        savedGrants.push(grant);
+      },
+      saveUserProgress: async (nextProgress) => {
+        savedProgress.push(nextProgress);
+      },
+      promotionClient: {
+        async createPromotionKey() {
+          requestCount += 1;
+          return 'promotion_key_1';
+        },
+        async executePromotion() {
+          requestCount += 1;
+        },
+        async getExecutionResult() {
+          requestCount += 1;
+          return 'SUCCESS';
+        },
+      },
+    }),
+  );
+
+  assert.equal(result.rewardStatus, 'failed');
+  assert.equal(requestCount, 0);
+  assert.deepEqual(savedGrants, [
+    {
+      userId: 'user_1',
+      quizDate: '2026-06-01',
+      promotionKey: '',
+      amount: 5,
+      status: 'failed',
+    },
+  ]);
+  assert.equal(savedProgress.at(-1)?.progressStatus, 'completed');
+  assert.equal(savedProgress.at(-1)?.rewardStatus, 'failed');
+  assert.equal(savedProgress.at(-1)?.rewardReviewRequired, true);
+});
+
 test('keeps pending when Toss promotion result is pending', async () => {
   const savedProgress: UserProgress[] = [];
   const result = await grantPointReward(

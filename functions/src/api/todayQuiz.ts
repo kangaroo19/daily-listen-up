@@ -2,7 +2,7 @@ import { getStorage } from 'firebase-admin/storage';
 import type { Response } from 'express';
 import type { Request } from 'firebase-functions/v2/https';
 import { findPublishedQuizByDate } from '../repositories/quizRepository.js';
-import { getPublicTodayQuiz } from '../services/todayQuiz.js';
+import { getPublicTodayQuiz, TodayQuizAccessError } from '../services/todayQuiz.js';
 import { getBearerToken } from '../services/sessionBoundary.js';
 import { sendJson } from './responses.js';
 
@@ -31,6 +31,13 @@ export async function handleTodayQuiz(req: Request, res: Response): Promise<void
     if (error instanceof Error && error.message.startsWith('App session')) {
       sendJson(res, 401, {
         code: 'unauthorized',
+      });
+      return;
+    }
+
+    if (error instanceof TodayQuizAccessError) {
+      sendJson(res, 409, {
+        code: error.code,
       });
       return;
     }

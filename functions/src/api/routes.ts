@@ -1,12 +1,12 @@
 import type { Response } from 'express';
 import type { Request } from 'firebase-functions/v2/https';
-import { collections } from '../domain/collections.js';
 import { handleAnswerResult } from './answerResult.js';
 import { handleCheckTodayQuiz } from './checkTodayQuiz.js';
 import { handleLoginToss } from './loginToss.js';
+import { handleRewardedAdComplete } from './rewardedAdComplete.js';
 import { handleRewardStatus } from './rewardStatus.js';
 import { handleQuizAudio, handleTodayQuiz } from './todayQuiz.js';
-import { sendJson, sendNotImplemented } from './responses.js';
+import { sendJson } from './responses.js';
 
 type RouteHandler = (req: Request, res: Response) => void | Promise<void>;
 
@@ -17,13 +17,7 @@ const routes: Record<string, RouteHandler> = {
   'GET /api/quiz-audio': handleQuizAudio,
   'GET /api/reward-status': handleRewardStatus,
   'POST /api/answer-result': handleAnswerResult,
-  'POST /api/rewarded-ad-complete': (_req, res) => {
-    sendNotImplemented(res, 'POST /api/rewarded-ad-complete', '08-result-retry-script', {
-      purposes: ['retry', 'script'],
-      requiresServerRewardEvent: true,
-      collections: [collections.appSessions, collections.userProgress, collections.adRewardEvents],
-    });
-  },
+  'POST /api/rewarded-ad-complete': handleRewardedAdComplete,
 };
 
 export async function routeApi(req: Request, res: Response): Promise<void> {

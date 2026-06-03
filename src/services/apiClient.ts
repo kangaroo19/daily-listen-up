@@ -32,6 +32,14 @@ export type AnswerResultResponse = {
   rewardStatus: RewardStatus;
 };
 
+export type RewardedAdPurpose = 'retry' | 'script';
+
+export type RewardedAdCompleteResponse = {
+  progressStatus: ProgressStatus;
+  canViewScript: boolean;
+  script?: string;
+};
+
 export async function postTossLogin(loginResult: TossLoginResult): Promise<AppSession> {
   const response = await fetch(`${clientEnv.apiBaseUrl}/api/login/toss`, {
     method: 'POST',
@@ -170,6 +178,48 @@ export async function postAnswerResult(
     isCorrect: body.isCorrect,
     progressStatus: body.progressStatus,
     rewardStatus: body.rewardStatus,
+  };
+}
+
+export async function postRewardedAdComplete(
+  appSessionToken: string,
+  request: {
+    quizDate: string;
+    purpose: RewardedAdPurpose;
+    userEarnedReward: boolean;
+  },
+): Promise<RewardedAdCompleteResponse> {
+  const response = await fetch(`${clientEnv.apiBaseUrl}/api/rewarded-ad-complete`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${appSessionToken}`,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to complete rewarded ad.');
+  }
+
+  const body = (await response.json()) as Partial<RewardedAdCompleteResponse>;
+
+  if (!isProgressStatus(body.progressStatus) || typeof body.canViewScript !== 'boolean') {
+    throw new Error('Invalid rewarded ad complete response.');
+  }
+
+  if (request.purpose === 'script' && typeof body.script !== 'string') {
+    throw new Error('Invalid rewarded ad script response.');
+  }
+
+  if (request.purpose === 'retry' && 'script' in body) {
+    throw new Error('Invalid rewarded ad retry response.');
+  }
+
+  return {
+    progressStatus: body.progressStatus,
+    canViewScript: body.canViewScript,
+    ...(typeof body.script === 'string' ? { script: body.script } : {}),
   };
 }
 

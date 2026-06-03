@@ -5,7 +5,7 @@ import { getTodayQuiz, postAnswerResult, type AnswerResultResponse, type TodayQu
 import { getAppSessionToken } from '../services/appSession';
 
 type QuizScreenProps = {
-  onAnswerResult: (result: AnswerResultResponse) => void;
+  onAnswerResult: (result: AnswerResultResponse, quizDate: string) => void;
 };
 
 export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
@@ -116,7 +116,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
     try {
       await showTossAd('answer-result');
       const answerResult = await postAnswerResult(appSessionToken, submissionBoundary);
-      onAnswerResult(answerResult);
+      onAnswerResult(answerResult, submissionBoundary.quizDate);
     } catch {
       openToast('답안 제출을 완료하지 못했어요. 다시 시도해 주세요.');
       setIsSubmitting(false);

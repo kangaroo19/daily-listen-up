@@ -28,7 +28,7 @@ button {
   display: flex;
   flex: 1;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 14px;
 }
 
@@ -57,6 +57,11 @@ h1 {
 
 .supporting {
   color: #8b95a1;
+}
+
+.home-bottom-action {
+  margin-top: auto;
+  padding-top: 16px;
 }
 
 .quiz-screen {

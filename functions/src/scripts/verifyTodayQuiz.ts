@@ -5,7 +5,7 @@ import { getApps, initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
 import { collections } from '../domain/collections.js';
-import type { AppSession, Quiz } from '../domain/models.js';
+import type { AppSession, Quiz, UserProgress } from '../domain/models.js';
 import { sampleQuiz } from '../sample/sampleQuiz.js';
 import { createAppSessionToken, hashAppSessionToken } from '../services/loginSession.js';
 import { getKstDateString } from '../utils/kstDate.js';
@@ -28,10 +28,11 @@ const sessionTokenId = hashAppSessionToken(token);
 const userId = 'verify_today_quiz_user';
 const quizRef = db.collection(collections.quizzes).doc(quizDate);
 const sessionRef = db.collection(collections.appSessions).doc(sessionTokenId);
+const progressRef = db.collection(collections.userProgress).doc(`${userId}_${quizDate}`);
 const audioPath = `quiz-audio/${quizDate}/sample.mp3`;
 const audioFile = bucket.file(audioPath);
 
-await Promise.all([quizRef.delete(), sessionRef.delete(), audioFile.delete({ ignoreNotFound: true })]);
+await Promise.all([quizRef.delete(), sessionRef.delete(), progressRef.delete(), audioFile.delete({ ignoreNotFound: true })]);
 
 try {
   await sessionRef.set({
@@ -100,11 +101,30 @@ try {
     throw new Error(`Expected playable audio response at ${audioUrl}: ${audioResponse.status} ${audioResponse.headers.get('content-type')}`);
   }
 
+  await progressRef.set({
+    userId,
+    quizDate,
+    progressStatus: 'completed',
+    attemptCount: 1,
+    lastSubmittedChoiceIds: ['choice-b', 'choice-e'],
+    isCorrect: true,
+    canViewScript: false,
+    rewardStatus: 'success',
+    rewardReviewRequired: false,
+  } satisfies UserProgress);
+
+  const completedTodayQuiz = await requestJson(`${functionBaseUrl}/today-quiz`, token);
+
+  if (completedTodayQuiz.status !== 409 || completedTodayQuiz.body.code !== 'entry_not_allowed') {
+    throw new Error(`Expected completed progress to reject today quiz entry: ${JSON.stringify(completedTodayQuiz)}`);
+  }
+
   console.log('Verified GET /api/today-quiz unauthorized, expired session, empty quiz, and success responses.');
   console.log('Verified GET /api/today-quiz returns only quizDate, audioUrl, and choices.');
   console.log('Verified returned audioUrl is playable and does not expose the original Storage path.');
+  console.log('Verified completed progress cannot fetch today quiz content again.');
 } finally {
-  await Promise.all([quizRef.delete(), sessionRef.delete(), audioFile.delete({ ignoreNotFound: true })]);
+  await Promise.all([quizRef.delete(), sessionRef.delete(), progressRef.delete(), audioFile.delete({ ignoreNotFound: true })]);
 }
 
 async function requestJson(url: string, tokenToSend?: string): Promise<{ status: number; body: Record<string, unknown> }> {

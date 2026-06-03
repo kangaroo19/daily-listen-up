@@ -173,15 +173,13 @@ async function saveFinalRewardStatus(
   promotionKey: string,
   dependencies: PointRewardDependencies,
 ): Promise<PointRewardResult> {
-  if (promotionKey !== '') {
-    await dependencies.saveRewardGrant({
-      userId: request.userId,
-      quizDate: request.quizDate,
-      promotionKey,
-      amount: request.amount,
-      status: rewardStatus,
-    });
-  }
+  await dependencies.saveRewardGrant({
+    userId: request.userId,
+    quizDate: request.quizDate,
+    promotionKey,
+    amount: request.amount,
+    status: rewardStatus,
+  });
 
   await dependencies.saveUserProgress(createProgressWithRewardStatus(request.progress, rewardStatus));
 

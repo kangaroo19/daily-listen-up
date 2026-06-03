@@ -125,6 +125,54 @@ test('does not record a retry reward when retry is not allowed', async () => {
   assert.equal(eventCount, 0);
 });
 
+test('keeps retry unlocked idempotent instead of accumulating retry count', async () => {
+  const savedProgress: UserProgress[] = [];
+
+  const result = await completeRewardedAd(
+    {
+      userId: 'user_1',
+      quizDate: '2026-06-02',
+      purpose: 'retry',
+      userEarnedReward: true,
+    },
+    createDependencies({
+      findUserProgress: async () => ({
+        ...wrongProgress,
+        progressStatus: 'retry_unlocked',
+      }),
+      saveUserProgress: async (progress) => {
+        savedProgress.push(progress);
+      },
+    }),
+  );
+
+  assert.equal(result.progressStatus, 'retry_unlocked');
+  assert.equal(savedProgress.at(-1)?.progressStatus, 'retry_unlocked');
+  assert.equal(savedProgress.at(-1)?.attemptCount, 1);
+});
+
+test('script reward does not unlock retry progress', async () => {
+  const savedProgress: UserProgress[] = [];
+
+  const result = await completeRewardedAd(
+    {
+      userId: 'user_1',
+      quizDate: '2026-06-02',
+      purpose: 'script',
+      userEarnedReward: true,
+    },
+    createDependencies({
+      saveUserProgress: async (progress) => {
+        savedProgress.push(progress);
+      },
+    }),
+  );
+
+  assert.equal(result.progressStatus, 'wrong');
+  assert.equal(savedProgress.at(-1)?.progressStatus, 'wrong');
+  assert.equal(savedProgress.at(-1)?.canViewScript, true);
+});
+
 test('rejects script reward before the user has a submitted result', async () => {
   await assert.rejects(
     completeRewardedAd(

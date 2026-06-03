@@ -76,14 +76,16 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
         짧은 영어 음성을 듣고 문제를 맞히면 토스 포인트 보상에 도전할 수 있어요.
       </p>
       <p className="supporting">하루에 한 문제만 제공돼요.</p>
-      <Button
-        display="full"
-        loading={isStarting}
-        disabled={isStarting}
-        onClick={handleStartClick}
-      >
-        시작하기
-      </Button>
+      <div className="home-bottom-action">
+        <Button
+          display="full"
+          loading={isStarting}
+          disabled={isStarting}
+          onClick={handleStartClick}
+        >
+          시작하기
+        </Button>
+      </div>
     </section>
   );
 }

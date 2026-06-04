@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { collections } from '../domain/collections.js';
 import { hashAppSessionToken } from '../services/loginSession.js';
 
-const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
 const mockTossPort = Number(process.env.MOCK_TOSS_PORT ?? 7123);
 const functionUrl = `http://127.0.0.1:5001/${projectId}/asia-northeast3/api/api/login/toss`;
 

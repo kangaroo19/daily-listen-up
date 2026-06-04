@@ -95,7 +95,7 @@ function getApiBaseUrl(req: Request): string {
   const host = req.get('host');
 
   if (process.env.FUNCTIONS_EMULATOR === 'true') {
-    const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+    const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
 
     return `${protocol}://${host}/${projectId}/asia-northeast3/api/api`;
   }
@@ -108,7 +108,7 @@ function getApiBaseUrl(req: Request): string {
 }
 
 function getStorageBucket(): string {
-  const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+  const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
 
   return process.env.FIREBASE_STORAGE_BUCKET ?? `${projectId}.appspot.com`;
 }

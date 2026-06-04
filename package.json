@@ -6,10 +6,10 @@
   "scripts": {
     "dev": "granite dev",
     "typecheck": "tsc --noEmit",
-    "build": "tsc -b && vite build",
+    "build": "ait build",
     "functions:build": "npm --prefix functions run build",
     "functions:test": "npm --prefix functions test",
-    "firebase:emulators": "firebase emulators:start --project daily-listen-up-dev",
+    "firebase:emulators": "firebase emulators:start --project daily-listen-up",
     "firebase:seed": "npm --prefix functions run seed:sample",
     "firebase:verify-sample": "npm --prefix functions run verify:sample",
     "firebase:verify-login-session": "npm --prefix functions run verify:login-session",

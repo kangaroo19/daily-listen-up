@@ -5,8 +5,8 @@ import { collections } from '../domain/collections.js';
 import { sampleQuiz } from '../sample/sampleQuiz.js';
 import { getKstDateString } from '../utils/kstDate.js';
 
-const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
-const storageBucket = `${projectId}.appspot.com`;
+const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
+const storageBucket = process.env.FIREBASE_STORAGE_BUCKET ?? `${projectId}.appspot.com`;
 
 if (getApps().length === 0) {
   initializeApp({ projectId, storageBucket });

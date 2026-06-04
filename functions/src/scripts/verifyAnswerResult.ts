@@ -6,7 +6,7 @@ import { sampleQuiz } from '../sample/sampleQuiz.js';
 import { createAppSessionToken, hashAppSessionToken } from '../services/loginSession.js';
 import { getKstDateString } from '../utils/kstDate.js';
 
-const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
 const functionBaseUrl = `http://127.0.0.1:5001/${projectId}/asia-northeast3/api/api`;
 
 if (getApps().length === 0) {

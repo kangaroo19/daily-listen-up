@@ -1,6 +1,6 @@
-import { readFileSync } from 'node:fs';
 import http from 'node:http';
 import https from 'node:https';
+import { getTossMtlsRequestOptions, readTossMtlsConfigFromEnv, type TossMtlsConfig } from './tossMtlsConfig.js';
 
 export type TossReferrer = 'DEFAULT' | 'SANDBOX';
 
@@ -35,15 +35,10 @@ type TossSuccessEnvelope<T> = {
 
 type TossFailEnvelope = {
   resultType?: 'FAIL';
-  error?: {
+  error?: string | {
     errorCode?: string;
     reason?: string;
   };
-};
-
-type TossMtlsConfig = {
-  certPath: string;
-  keyPath: string;
 };
 
 const DEFAULT_TOSS_API_BASE_URL = 'https://apps-in-toss-api.toss.im';
@@ -96,26 +91,12 @@ export function createTossLoginClient(
   };
 }
 
-function readTossMtlsConfigFromEnv(): TossMtlsConfig | undefined {
-  const certPath = process.env.TOSS_MTLS_CERT_PATH;
-  const keyPath = process.env.TOSS_MTLS_KEY_PATH;
-
-  if (certPath == null || keyPath == null) {
-    return undefined;
-  }
-
-  return {
-    certPath,
-    keyPath,
-  };
-}
-
 async function readTossSuccess<T>(response: Response, fallbackMessage: string): Promise<T> {
   const body = (await response.json().catch(() => null)) as TossSuccessEnvelope<T> | TossFailEnvelope | null;
 
   if (!response.ok || body == null || body.resultType !== 'SUCCESS') {
     const error = body != null && body.resultType !== 'SUCCESS' ? body.error : undefined;
-    const reason = error?.reason ?? error?.errorCode ?? fallbackMessage;
+    const reason = typeof error === 'string' ? error : error?.reason ?? error?.errorCode ?? fallbackMessage;
     throw new Error(reason);
   }
 
@@ -150,8 +131,10 @@ function requestTossJson(
   };
 
   if (urlObject.protocol === 'https:') {
-    requestOptions.cert = readFileSync(mtlsConfig.certPath);
-    requestOptions.key = readFileSync(mtlsConfig.keyPath);
+    const mtlsRequestOptions = getTossMtlsRequestOptions(mtlsConfig);
+
+    requestOptions.cert = mtlsRequestOptions.cert;
+    requestOptions.key = mtlsRequestOptions.key;
     requestOptions.rejectUnauthorized = true;
   }
 

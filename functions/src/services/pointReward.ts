@@ -4,6 +4,7 @@ import { findUserById } from '../repositories/userRepository.js';
 import { saveUserProgress } from '../repositories/userProgressRepository.js';
 import { createTossPromotionClient } from './tossPromotionClient.js';
 import type { PromotionExecutionStatus, TossPromotionClient } from './tossPromotionClient.js';
+import { hasTossMtlsConfig } from './tossMtlsConfig.js';
 
 export type PointRewardRequest = {
   userId: string;
@@ -117,8 +118,7 @@ export async function refreshPendingRewardStatus(
       quizDate: request.rewardGrant.quizDate,
       hasUser: user != null,
       hasPromotionCode: dependencies.promotionCode !== '',
-      hasMtlsCertPath: process.env.TOSS_MTLS_CERT_PATH != null,
-      hasMtlsKeyPath: process.env.TOSS_MTLS_KEY_PATH != null,
+      hasMtlsConfig: hasTossMtlsConfig(),
     });
 
     return {
@@ -156,8 +156,7 @@ export async function refreshPendingRewardStatus(
       userId: request.rewardGrant.userId,
       quizDate: request.rewardGrant.quizDate,
       promotionKey: request.rewardGrant.promotionKey,
-      hasMtlsCertPath: process.env.TOSS_MTLS_CERT_PATH != null,
-      hasMtlsKeyPath: process.env.TOSS_MTLS_KEY_PATH != null,
+      hasMtlsConfig: hasTossMtlsConfig(),
       errorMessage: error instanceof Error ? error.message : String(error),
     });
 

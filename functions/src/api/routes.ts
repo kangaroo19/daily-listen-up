@@ -6,7 +6,7 @@ import { handleLoginToss } from './loginToss.js';
 import { handleRewardedAdComplete } from './rewardedAdComplete.js';
 import { handleRewardStatus } from './rewardStatus.js';
 import { handleQuizAudio, handleTodayQuiz } from './todayQuiz.js';
-import { sendJson } from './responses.js';
+import { sendJson, setCorsHeaders } from './responses.js';
 
 type RouteHandler = (req: Request, res: Response) => void | Promise<void>;
 
@@ -21,6 +21,12 @@ const routes: Record<string, RouteHandler> = {
 };
 
 export async function routeApi(req: Request, res: Response): Promise<void> {
+  if (req.method === 'OPTIONS') {
+    setCorsHeaders(res);
+    res.status(204).end();
+    return;
+  }
+
   const path = normalizePath(req.path);
   const handler = routes[`${req.method} ${path}`];
 

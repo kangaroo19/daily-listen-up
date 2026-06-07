@@ -85,6 +85,8 @@ MVP는 홈, 문제 풀이, 결과 화면을 기준으로 구현한다.
    - 포인트 지급, 결과/재도전/스크립트, 당일 완료/중복 보상 방지
 4. 4차 묶음: 10
    - TDS polish, 테스트, 빌드 검증, MVP 완료 체크
+5. 5차 묶음: 11
+   - 실제 Firebase 프로젝트 연결, Secret Manager, 운영 배포 준비
 
 ## 전체 작업 목록
 
@@ -108,3 +110,5 @@ MVP는 홈, 문제 풀이, 결과 화면을 기준으로 구현한다.
    - 파일명: `active/09-daily-completion-duplicate-guard.md`
 10. TDS UI 정리, 테스트, 빌드 검증, MVP 완료 체크
     - 파일명: `active/10-mvp-polish-test-verification.md`
+11. 실제 Firebase 운영 연결과 Secret Manager 배포 준비
+    - 파일명: `active/11-firebase-release-secret-manager-setup.md`

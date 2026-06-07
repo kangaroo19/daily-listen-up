@@ -36,11 +36,29 @@ export async function handleLoginToss(req: Request, res: Response): Promise<void
 
     sendJson(res, 200, result);
   } catch (error) {
-    console.error('Toss login session failed', error);
-    sendJson(res, 502, {
-      code: 'login_failed',
-    });
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    console.error(
+      JSON.stringify({
+        message: 'Toss login session failed',
+        error: errorMessage,
+      }),
+    );
+    sendJson(res, 502, createLoginFailureBody(body.referrer, errorMessage));
   }
+}
+
+export function createLoginFailureBody(referrer: TossReferrer, reason: string): { code: 'login_failed'; reason?: string } {
+  if (referrer === 'SANDBOX') {
+    return {
+      code: 'login_failed',
+      reason,
+    };
+  }
+
+  return {
+    code: 'login_failed',
+  };
 }
 
 function isValidLoginRequest(body: LoginTossBody): body is { authorizationCode: string; referrer: TossReferrer } {

@@ -90,25 +90,55 @@ export async function handleQuizAudio(req: Request, res: Response): Promise<void
   }
 }
 
-function getApiBaseUrl(req: Request): string {
-  const protocol = req.protocol;
-  const host = req.get('host');
+type ApiBaseUrlInput = {
+  protocol: string;
+  host: string;
+  originalUrl: string;
+  path: string;
+};
 
-  if (process.env.FUNCTIONS_EMULATOR === 'true') {
-    const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+type ApiBaseUrlEnv = Partial<Record<'FUNCTIONS_EMULATOR' | 'FUNCTION_TARGET' | 'GCLOUD_PROJECT' | 'FIREBASE_PROJECT_ID', string>>;
+
+export function getApiBaseUrl(req: Request): string;
+export function getApiBaseUrl(input: ApiBaseUrlInput, env?: ApiBaseUrlEnv): string;
+export function getApiBaseUrl(req: Request | ApiBaseUrlInput, env: ApiBaseUrlEnv = process.env): string {
+  const protocol = req.protocol;
+  const host = 'get' in req ? req.get('host') : req.host;
+
+  if (env.FUNCTIONS_EMULATOR === 'true') {
+    const projectId = env.GCLOUD_PROJECT ?? env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
 
     return `${protocol}://${host}/${projectId}/asia-northeast3/api/api`;
   }
 
+  const functionName = env.FUNCTION_TARGET ?? 'api';
+
   const originalUrl = req.originalUrl.split('?')[0];
   const path = req.path;
-  const prefix = originalUrl.endsWith(path) ? originalUrl.slice(0, -path.length) : '';
+  const basePath = originalUrl.endsWith(path) ? originalUrl.slice(0, -path.length) : '';
 
-  return `${protocol}://${host}${prefix}/api`;
+  return `${protocol}://${host}${basePath || `/${functionName}`}${path.slice(0, -'/today-quiz'.length)}`;
 }
 
-function getStorageBucket(): string {
-  const projectId = process.env.GCLOUD_PROJECT ?? process.env.FIREBASE_PROJECT_ID ?? 'daily-listen-up-dev';
+type StorageBucketEnv = Partial<Record<'GCLOUD_PROJECT' | 'FIREBASE_PROJECT_ID' | 'FIREBASE_STORAGE_BUCKET' | 'FIREBASE_CONFIG', string>>;
 
-  return process.env.FIREBASE_STORAGE_BUCKET ?? `${projectId}.appspot.com`;
+export function getStorageBucket(env: StorageBucketEnv = process.env): string {
+  const projectId = env.GCLOUD_PROJECT ?? env.FIREBASE_PROJECT_ID ?? 'daily-listen-up';
+  const configuredBucket = readFirebaseConfigStorageBucket(env.FIREBASE_CONFIG);
+
+  return env.FIREBASE_STORAGE_BUCKET ?? configuredBucket ?? `${projectId}.appspot.com`;
+}
+
+function readFirebaseConfigStorageBucket(firebaseConfig: string | undefined): string | undefined {
+  if (firebaseConfig == null || firebaseConfig === '') {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(firebaseConfig) as { storageBucket?: unknown };
+
+    return typeof parsed.storageBucket === 'string' && parsed.storageBucket !== '' ? parsed.storageBucket : undefined;
+  } catch {
+    return undefined;
+  }
 }

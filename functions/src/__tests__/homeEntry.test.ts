@@ -16,14 +16,16 @@ const baseProgress: UserProgress = {
 };
 
 test('returns not_started and none when the user has no progress for today', () => {
-  assert.deepEqual(resolveRewardStatus(null, null), {
+  assert.deepEqual(resolveRewardStatus(null, null, '2026-05-31'), {
+    quizDate: '2026-05-31',
     progressStatus: 'not_started',
     rewardStatus: 'none',
   });
 });
 
 test('uses stored progress reward status when no reward grant exists', () => {
-  assert.deepEqual(resolveRewardStatus(baseProgress, null), {
+  assert.deepEqual(resolveRewardStatus(baseProgress, null, '2026-05-31'), {
+    quizDate: '2026-05-31',
     progressStatus: 'completed',
     rewardStatus: 'pending',
   });
@@ -38,7 +40,8 @@ test('uses reward grant status when a reward grant exists', () => {
     status: 'failed',
   };
 
-  assert.deepEqual(resolveRewardStatus(baseProgress, rewardGrant), {
+  assert.deepEqual(resolveRewardStatus(baseProgress, rewardGrant, '2026-05-31'), {
+    quizDate: '2026-05-31',
     progressStatus: 'completed',
     rewardStatus: 'failed',
   });

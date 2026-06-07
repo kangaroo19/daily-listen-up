@@ -42,7 +42,7 @@ export async function handleRewardStatus(req: Request, res: Response): Promise<v
       };
     }
 
-    sendJson(res, 200, resolveRewardStatus(progress, rewardGrant));
+    sendJson(res, 200, resolveRewardStatus(progress, rewardGrant, quizDate));
   } catch {
     sendJson(res, 500, {
       code: 'reward_status_failed',

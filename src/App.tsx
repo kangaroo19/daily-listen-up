@@ -13,18 +13,20 @@ export default function App() {
   const [screen, setScreen] = useState<AppScreen>('home');
   const [answerResult, setAnswerResult] = useState<AnswerResultState | null>(null);
 
+  function showAnswerResult(result: AnswerResultResponse, quizDate: string) {
+    setAnswerResult({
+      ...result,
+      quizDate,
+    });
+    setScreen('result');
+  }
+
   return (
     <main className="app-shell">
-      {screen === 'home' && <HomeScreen onEnterQuiz={() => setScreen('quiz')} />}
+      {screen === 'home' && <HomeScreen onEnterQuiz={() => setScreen('quiz')} onAnswerResult={showAnswerResult} />}
       {screen === 'quiz' && (
         <QuizScreen
-          onAnswerResult={(result, quizDate) => {
-            setAnswerResult({
-              ...result,
-              quizDate,
-            });
-            setScreen('result');
-          }}
+          onAnswerResult={showAnswerResult}
         />
       )}
       {screen === 'result' && (

@@ -11,6 +11,7 @@ export type ProgressStatus = 'not_started' | 'wrong' | 'retry_unlocked' | 'compl
 export type RewardStatus = 'none' | 'pending' | 'success' | 'failed';
 
 export type RewardStatusResponse = {
+  quizDate: string;
   progressStatus: ProgressStatus;
   rewardStatus: RewardStatus;
 };
@@ -103,11 +104,12 @@ export async function getRewardStatus(appSessionToken: string): Promise<RewardSt
 
   const body = (await response.json()) as Partial<RewardStatusResponse>;
 
-  if (!isProgressStatus(body.progressStatus) || !isRewardStatus(body.rewardStatus)) {
+  if (typeof body.quizDate !== 'string' || !isProgressStatus(body.progressStatus) || !isRewardStatus(body.rewardStatus)) {
     throw new Error('Invalid reward status response.');
   }
 
   return {
+    quizDate: body.quizDate,
     progressStatus: body.progressStatus,
     rewardStatus: body.rewardStatus,
   };

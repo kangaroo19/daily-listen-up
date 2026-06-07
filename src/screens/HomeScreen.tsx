@@ -2,13 +2,15 @@ import { Button, useToast } from "@toss/tds-mobile";
 import { useState } from "react";
 import { requestTossLogin } from "../integrations/toss";
 import { getCheckTodayQuiz, getRewardStatus, postTossLogin } from "../services/apiClient";
+import type { AnswerResultResponse } from "../services/apiClient";
 import { startLogin } from "../services/startLogin";
 
 type HomeScreenProps = {
   onEnterQuiz: () => void;
+  onAnswerResult: (result: AnswerResultResponse, quizDate: string) => void;
 };
 
-export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
+export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
   const { openToast } = useToast();
   const [isStarting, setIsStarting] = useState(false);
 
@@ -56,6 +58,18 @@ export function HomeScreen({ onEnterQuiz }: HomeScreenProps) {
           rewardStatus.rewardStatus === "failed"
             ? "포인트 지급 확인이 필요해요"
             : "오늘 문제풀이를 완료했습니다",
+        );
+        return;
+      }
+
+      if (rewardStatus.progressStatus === "wrong") {
+        onAnswerResult(
+          {
+            isCorrect: false,
+            progressStatus: "wrong",
+            rewardStatus: rewardStatus.rewardStatus,
+          },
+          rewardStatus.quizDate,
         );
         return;
       }

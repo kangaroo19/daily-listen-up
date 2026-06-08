@@ -1,0 +1,71 @@
+<h2>전체 대시보드 레이아웃 방향</h2>
+<p class="subtitle">데스크톱 운영자가 매일 들어와 확인하고, 콘텐츠만 수정하는 v1 기준입니다.</p>
+
+<div class="cards">
+  <div class="card" data-choice="cockpit" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">A. 운영 Cockpit</div>
+        <div class="mockup-body">
+          <div class="mock-nav">오늘 상태 | 콘텐츠 | 유저/보상 | QA</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px">
+            <div class="placeholder">오늘 퀴즈</div>
+            <div class="placeholder">지급 실패</div>
+            <div class="placeholder">진행 요약</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1.2fr .8fr;gap:10px;margin-top:10px">
+            <div class="placeholder" style="height:110px">날짜별 퀴즈 테이블</div>
+            <div class="placeholder" style="height:110px">QA 체크리스트</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. 운영 Cockpit</h3>
+      <p>첫 화면에서 핵심 지표와 당일 퀴즈 상태를 보고, 탭으로 세부 관리에 들어갑니다.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="content-first" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">B. 콘텐츠 캘린더 중심</div>
+        <div class="mockup-body">
+          <div style="display:flex;gap:10px">
+            <div class="mock-sidebar">퀴즈 풀<br>날짜 배정<br>공개 상태</div>
+            <div class="mock-content">
+              <div class="placeholder" style="height:58px">캘린더 / 날짜별 배정</div>
+              <div class="placeholder" style="height:92px;margin-top:10px">선택 날짜 상세 편집</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 콘텐츠 캘린더 중심</h3>
+      <p>관리자 페이지를 콘텐츠 편성표처럼 만들고, 유저/보상은 보조 탭으로 둡니다.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="data-tables" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div class="mockup">
+        <div class="mockup-header">C. 데이터 테이블 중심</div>
+        <div class="mockup-body">
+          <div class="mock-nav">Quizzes | Users | Progress | Rewards | Ads</div>
+          <div class="placeholder" style="height:42px;margin-top:10px">필터 / 검색 / 날짜 범위</div>
+          <div class="placeholder" style="height:112px;margin-top:10px">행 중심 테이블 + 우측 상세</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 데이터 테이블 중심</h3>
+      <p>Firestore 컬렉션에 가깝게 탐색합니다. 강력하지만 초반 UX가 딱딱해질 수 있습니다.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>내 추천</h3>
+  <p><strong>A. 운영 Cockpit</strong>을 추천합니다. 전체 대시보드 요구를 만족하면서도 첫 화면이 “오늘 무엇이 문제인지”를 바로 보여주고, 콘텐츠 수정은 세부 탭에서 안전하게 처리할 수 있습니다.</p>
+</div>

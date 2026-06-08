@@ -1,0 +1,86 @@
+<h2>Home Screen Direction</h2>
+<p class="subtitle">Choose the visual hierarchy for adding a mini-app icon and TDS Stepper to the home screen.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a-hero-icon-stepper" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="width:280px;min-height:430px;margin:0 auto;padding:28px 20px 20px;border-radius:28px;background:#f5f7f9;color:#191f28;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column;gap:14px;box-shadow:0 16px 40px rgba(25,31,40,.08)">
+        <div style="font-size:12px;font-weight:700;color:#4e5968">Daily Listen Up</div>
+        <div style="font-size:26px;line-height:1.25;font-weight:800">오늘의 영어 듣고<br/>포인트 받기</div>
+        <div style="width:82px;height:82px;border-radius:26px;background:#e8f3ff;display:grid;place-items:center;margin:8px 0 4px;color:#1b64da;font-size:38px">▶</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+          <div style="display:grid;grid-template-columns:32px 1fr;gap:12px">
+            <div style="width:28px;height:28px;border-radius:999px;background:#3182f6;color:white;display:grid;place-items:center;font-size:13px;font-weight:700">1</div>
+            <div><div style="font-size:16px;font-weight:700">짧은 영어 음성 듣기</div><div style="font-size:13px;color:#6b7684;margin-top:2px">한 문제 분량만 가볍게 들어요.</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:32px 1fr;gap:12px">
+            <div style="width:28px;height:28px;border-radius:999px;background:#3182f6;color:white;display:grid;place-items:center;font-size:13px;font-weight:700">2</div>
+            <div><div style="font-size:16px;font-weight:700">정답 맞히고 보상 도전</div><div style="font-size:13px;color:#6b7684;margin-top:2px">토스 포인트 보상 기회를 확인해요.</div></div>
+          </div>
+        </div>
+        <div style="margin-top:auto;height:48px;border-radius:14px;background:#3182f6;color:white;display:grid;place-items:center;font-size:16px;font-weight:700">시작하기</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Hero Icon + Stepper</h3>
+      <p>Most expressive. The icon makes the first viewport less plain while the Stepper explains the value flow.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b-icons-inside-stepper" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="width:280px;min-height:430px;margin:0 auto;padding:28px 20px 20px;border-radius:28px;background:#f5f7f9;color:#191f28;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column;gap:14px;box-shadow:0 16px 40px rgba(25,31,40,.08)">
+        <div style="font-size:12px;font-weight:700;color:#4e5968">Daily Listen Up</div>
+        <div style="font-size:26px;line-height:1.25;font-weight:800">오늘의 영어 듣고<br/>포인트 받기</div>
+        <div style="display:flex;flex-direction:column;gap:18px;margin-top:18px">
+          <div style="display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center">
+            <div style="width:42px;height:42px;border-radius:16px;background:#e8f3ff;display:grid;place-items:center;color:#1b64da;font-size:22px">♫</div>
+            <div><div style="font-size:16px;font-weight:700">듣기</div><div style="font-size:13px;color:#6b7684;margin-top:2px">짧은 영어 음성을 들어요.</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center">
+            <div style="width:42px;height:42px;border-radius:16px;background:#e8f3ff;display:grid;place-items:center;color:#1b64da;font-size:22px">?</div>
+            <div><div style="font-size:16px;font-weight:700">문제 풀기</div><div style="font-size:13px;color:#6b7684;margin-top:2px">정답을 고르면 결과가 나와요.</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center">
+            <div style="width:42px;height:42px;border-radius:16px;background:#e8f3ff;display:grid;place-items:center;color:#1b64da;font-size:22px">P</div>
+            <div><div style="font-size:16px;font-weight:700">포인트 도전</div><div style="font-size:13px;color:#6b7684;margin-top:2px">맞히면 보상 기회를 확인해요.</div></div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#8b95a1;margin-top:2px">하루에 한 문제만 제공돼요.</div>
+        <div style="margin-top:auto;height:48px;border-radius:14px;background:#3182f6;color:white;display:grid;place-items:center;font-size:16px;font-weight:700">시작하기</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Icons In Stepper Rows</h3>
+      <p>Most instructional. It turns the intro into a clear 3-step flow, but can feel busier on a small screen.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c-compact-badge-stepper" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="width:280px;min-height:430px;margin:0 auto;padding:28px 20px 20px;border-radius:28px;background:#f5f7f9;color:#191f28;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;flex-direction:column;gap:14px;box-shadow:0 16px 40px rgba(25,31,40,.08)">
+        <div style="font-size:12px;font-weight:700;color:#4e5968">Daily Listen Up</div>
+        <div style="font-size:26px;line-height:1.25;font-weight:800">오늘의 영어 듣고<br/>포인트 받기</div>
+        <div style="display:inline-flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:8px 12px;border-radius:999px;background:#e8f3ff;color:#1b64da;font-size:13px;font-weight:700">
+          <span style="font-size:16px">▶</span><span>하루 1문제 미니 듣기</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+          <div style="display:grid;grid-template-columns:28px 1fr;gap:10px">
+            <div style="width:24px;height:24px;border-radius:999px;background:#3182f6;color:white;display:grid;place-items:center;font-size:12px;font-weight:700">1</div>
+            <div><div style="font-size:15px;font-weight:700">듣고 문제 풀기</div><div style="font-size:12px;color:#6b7684;margin-top:2px">짧게 듣고 바로 선택해요.</div></div>
+          </div>
+          <div style="display:grid;grid-template-columns:28px 1fr;gap:10px">
+            <div style="width:24px;height:24px;border-radius:999px;background:#3182f6;color:white;display:grid;place-items:center;font-size:12px;font-weight:700">2</div>
+            <div><div style="font-size:15px;font-weight:700">정답이면 보상 도전</div><div style="font-size:12px;color:#6b7684;margin-top:2px">토스 포인트 기회를 확인해요.</div></div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#8b95a1;margin-top:2px">하루에 한 문제만 제공돼요.</div>
+        <div style="margin-top:auto;height:48px;border-radius:14px;background:#3182f6;color:white;display:grid;place-items:center;font-size:16px;font-weight:700">시작하기</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Compact Badge + Stepper</h3>
+      <p>Quietest option. Adds personality without moving too much attention away from the CTA.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+[
+  {
+    "id": "cafe-name-mixup",
+    "audioFileName": "cafe-name-mixup.mp3",
+    "script": "This morning, I stopped at a small cafe before work. I ordered an iced latte and gave my name, Mina. The cafe was noisy, so the barista wrote Nina on the cup. A woman named Nina picked it up by mistake. When she tasted it, she came back and said, \"I think this latte is not mine.\" The barista made a new drink for both of us and wrote order numbers after that.",
+    "choices": [
+      { "id": "choice-a", "text": "화자는 출근 전에 작은 카페에 들렀다." },
+      { "id": "choice-b", "text": "화자는 따뜻한 아메리카노를 주문했다." },
+      { "id": "choice-c", "text": "바리스타는 컵에 Mina 대신 Nina라고 적었다." },
+      { "id": "choice-d", "text": "Nina는 음료를 마시지 않고 바로 버렸다." },
+      { "id": "choice-e", "text": "바리스타는 이후 이름 대신 테이블 번호를 쓰기 시작했다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-c"],
+    "promotionAmount": 5
+  }
+]

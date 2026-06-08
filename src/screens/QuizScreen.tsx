@@ -74,7 +74,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
     [quiz, selectedChoiceIds],
   );
 
-  const canSubmit = hasFinishedAudio && submissionBoundary != null && selectedChoiceIds.length > 0 && !isSubmitting;
+  const canSubmit = submissionBoundary != null && selectedChoiceIds.length > 0 && !isSubmitting;
 
   async function handleStartAudio() {
     const audio = audioRef.current;
@@ -150,8 +150,8 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
   return (
     <section className="screen quiz-screen">
       <p className="eyebrow">오늘의 문제</p>
-      <h1>{hasFinishedAudio ? '정답이라고 생각하는 답을 모두 골라주세요' : '오늘의 영어를 들어보세요'}</h1>
-      {!hasFinishedAudio && <p className="description">음성을 끝까지 들은 뒤 문제를 풀 수 있어요.</p>}
+      <h1>정답이라고 생각하는 답을 모두 골라주세요</h1>
+      <p className="description">음성은 한 번 들을 수 있고, 선택지는 바로 고를 수 있어요.</p>
 
       <audio
         ref={audioRef}
@@ -167,34 +167,32 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
         }}
       />
 
-      {!hasFinishedAudio ? (
-        <div className="audio-panel">
-          <Button display="block" disabled={hasStartedAudio} onClick={handleStartAudio}>
-            듣기 시작
-          </Button>
-          <p className="supporting">
-            {isAudioPlaying ? '음성을 재생하고 있어요.' : hasStartedAudio ? '재생이 끝나면 선택지가 열려요.' : '재생은 한 번만 가능해요.'}
-          </p>
-        </div>
-      ) : (
-        <div className="choice-list" role="group" aria-label="정답 선택지">
-          {quiz.choices.map((choice) => {
-            const isSelected = selectedChoiceIds.includes(choice.id);
+      <div className="audio-panel">
+        <Button display="block" disabled={hasStartedAudio} onClick={handleStartAudio}>
+          듣기 시작
+        </Button>
+        <p className="supporting">
+          {isAudioPlaying ? '음성을 재생하고 있어요.' : hasStartedAudio ? '재생을 완료했어요.' : '재생은 한 번만 가능해요.'}
+        </p>
+      </div>
 
-            return (
-              <button
-                key={choice.id}
-                type="button"
-                className={isSelected ? 'choice-button choice-button-selected' : 'choice-button'}
-                aria-pressed={isSelected}
-                onClick={() => handleToggleChoice(choice.id)}
-              >
-                {choice.text}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <div className="choice-list" role="group" aria-label="정답 선택지">
+        {quiz.choices.map((choice) => {
+          const isSelected = selectedChoiceIds.includes(choice.id);
+
+          return (
+            <button
+              key={choice.id}
+              type="button"
+              className={isSelected ? 'choice-button choice-button-selected' : 'choice-button'}
+              aria-pressed={isSelected}
+              onClick={() => handleToggleChoice(choice.id)}
+            >
+              {choice.text}
+            </button>
+          );
+        })}
+      </div>
 
       <div className="quiz-bottom-action">
         <Button display="block" disabled={!canSubmit} loading={isSubmitting} onClick={handleSubmitAnswer}>

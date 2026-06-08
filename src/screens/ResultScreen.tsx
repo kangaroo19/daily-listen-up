@@ -71,7 +71,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
         <h1>오늘 학습을 완료했어요</h1>
         <p className="description">내일 새로운 문제로 다시 만나요.</p>
         <div className="result-bottom-action">
-          <Button display="full" variant="weak" onClick={onHome}>
+          <Button display="block" variant="weak" onClick={onHome}>
             홈으로
           </Button>
         </div>
@@ -141,7 +141,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
       <div className="result-bottom-action">
         {!answerResult.isCorrect && (
           <Button
-            display="full"
+            display="block"
             loading={isRetryLoading}
             disabled={actionPurpose != null}
             onClick={() => void handleRewardedAction('retry')}
@@ -150,7 +150,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
           </Button>
         )}
         <Button
-          display="full"
+          display="block"
           variant={answerResult.isCorrect ? undefined : 'weak'}
           loading={isScriptLoading}
           disabled={actionPurpose != null}
@@ -158,7 +158,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
         >
           광고 보고 스크립트 보기
         </Button>
-        <Button display="full" variant="weak" disabled={actionPurpose != null} onClick={onHome}>
+        <Button display="block" variant="weak" disabled={actionPurpose != null} onClick={onHome}>
           홈으로
         </Button>
       </div>

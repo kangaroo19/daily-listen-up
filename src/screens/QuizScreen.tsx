@@ -139,7 +139,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
         <p className="eyebrow">오늘의 문제</p>
         <h1>문제를 불러오지 못했어요.</h1>
         <div className="quiz-bottom-action">
-          <Button display="full" onClick={handleRetry}>
+          <Button display="block" onClick={handleRetry}>
             다시 시도
           </Button>
         </div>
@@ -169,7 +169,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
 
       {!hasFinishedAudio ? (
         <div className="audio-panel">
-          <Button display="full" disabled={hasStartedAudio} onClick={handleStartAudio}>
+          <Button display="block" disabled={hasStartedAudio} onClick={handleStartAudio}>
             듣기 시작
           </Button>
           <p className="supporting">
@@ -197,7 +197,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
       )}
 
       <div className="quiz-bottom-action">
-        <Button display="full" disabled={!canSubmit} loading={isSubmitting} onClick={handleSubmitAnswer}>
+        <Button display="block" disabled={!canSubmit} loading={isSubmitting} onClick={handleSubmitAnswer}>
           <span className="submit-button-content">
             <span className="video-icon" aria-hidden="true" />
             답안 제출

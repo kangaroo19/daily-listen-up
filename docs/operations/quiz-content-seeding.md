@@ -33,6 +33,7 @@ functions/src/content/
 {
   "id": "morning-video-meeting",
   "audioFileName": "morning-video-meeting.mp3",
+  "speakerGender": "female",
   "script": "This morning, I tried to look professional before an important video meeting...",
   "choices": [
     { "id": "choice-a", "text": "화자는 중요한 화상 회의 전에 단정하게 보이려 했다." },
@@ -50,10 +51,13 @@ functions/src/content/
 
 - `id`: 문제 풀 안에서 문제를 식별하는 고유 ID
 - `audioFileName`: `functions/src/content/audio/` 아래에 있는 mp3 파일명
+- `speakerGender`: TTS 음성 선택에 사용하는 화자 성별. 값은 `female` 또는 `male`만 사용한다.
 - `script`: 광고 보상 후 열람 가능한 영어 듣기 스크립트
 - `choices`: 사용자에게 노출되는 5개 선택지
 - `correctChoiceIds`: 서버가 채점에 사용하는 정답 선택지 ID 목록
 - `promotionAmount`: 정답 시 지급할 토스 포인트 금액
+
+`speakerGender`는 스크립트의 화자 또는 내레이터에게 어울리는 음성을 고르기 위한 원본 메타데이터다. 앱 사용자가 문제를 풀 때 알아야 하는 정보가 아니므로 운영 Firestore 문서와 클라이언트의 오늘 문제 응답에는 기본적으로 포함하지 않는다.
 
 `correctChoiceIds`, `script`, `promotionAmount`, `audioStoragePath`는 클라이언트의 오늘 문제 응답에 포함하지 않는다. 클라이언트는 서버 API가 내려주는 `quizDate`, `audioUrl`, `choices`만 사용한다.
 
@@ -112,7 +116,7 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 
 1. 45초~1분 분량의 영어 듣기 스크립트를 작성한다.
 2. 스크립트 기준으로 5개 선택지와 복수 정답을 만든다.
-3. 음성 생성 도구로 mp3 파일을 만든다.
+3. `speakerGender`를 정하고, 해당 성별에 맞는 TTS 음성으로 mp3 파일을 만든다.
 4. mp3 파일을 `functions/src/content/audio/`에 둔다.
 5. 문제 데이터를 `functions/src/content/quizPool.json`에 추가한다.
 6. `--date` 또는 `--days-ahead`로 실제 Firebase 프로젝트에 seed 한다.
@@ -123,8 +127,9 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 
 - 문제 원본에는 날짜가 없어야 한다.
 - 스크립트는 음성 기준 45초~1분 분량이어야 한다.
+- `speakerGender`는 `female` 또는 `male`이어야 한다.
 - 운영 Firestore 문서에는 `quizDate`와 날짜별 `audioStoragePath`가 있어야 한다.
 - 선택지는 5개여야 한다.
 - `correctChoiceIds`는 `choices`에 존재하는 ID만 포함해야 한다.
 - 오디오 파일은 mp3로 준비하고 Storage에는 `quiz-audio/{quizDate}/` 아래에 저장해야 한다.
-- 클라이언트 공개 응답에 정답, 스크립트, 포인트 금액, 원본 Storage 경로가 노출되지 않아야 한다.
+- 클라이언트 공개 응답에 정답, 스크립트, 포인트 금액, 화자 성별, 원본 Storage 경로가 노출되지 않아야 한다.

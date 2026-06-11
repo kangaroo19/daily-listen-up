@@ -2,6 +2,7 @@
   {
     "id": "cafe-name-mixup",
     "audioFileName": "cafe-name-mixup.mp3",
+    "speakerGender": "female",
     "script": "This morning, I stopped at a small cafe before work. I ordered an iced latte and gave my name, Mina. The cafe was noisy, so the barista wrote Nina on the cup. A woman named Nina picked it up by mistake. When she tasted it, she came back and said, \"I think this latte is not mine.\" The barista made a new drink for both of us and wrote order numbers after that.",
     "choices": [
       { "id": "choice-a", "text": "화자는 출근 전에 작은 카페에 들렀다." },
@@ -11,6 +12,81 @@
       { "id": "choice-e", "text": "바리스타는 이후 이름 대신 테이블 번호를 쓰기 시작했다." }
     ],
     "correctChoiceIds": ["choice-a", "choice-c"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "lost-earbuds-on-bus",
+    "audioFileName": "lost-earbuds-on-bus.mp3",
+    "speakerGender": "female",
+    "script": "Hi, this is a message for the bus company. I think I left my earbuds on one of your buses during my ride. They are small, white, and inside a dark blue case. I was sitting near the middle door, on the right side. I remember putting the case in the seat pocket because I was holding my bag and a cup of tea. When I got off near the library, I forgot to take it. The bus was going to the central station. If someone finds it, please call me back. My name is Hana Park. I can come to the lost and found office after work. The earbuds are not new, but I use them every day for my English lessons.",
+    "choices": [
+      { "id": "choice-a", "text": "하나는 버스에서 이어버드를 잃어버렸다." },
+      { "id": "choice-b", "text": "이어버드 케이스는 진한 파란색이다." },
+      { "id": "choice-c", "text": "하나는 이어버드를 도서관 책상 위에 두고 왔다." },
+      { "id": "choice-d", "text": "하나는 버스 앞문 근처에 앉아 있었다." },
+      { "id": "choice-e", "text": "이어버드는 새 제품이라서 환불을 받으려 한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "wrong-laundry-bag",
+    "audioFileName": "wrong-laundry-bag.mp3",
+    "speakerGender": "male",
+    "script": "Excuse me, I picked up my laundry a short time ago, but I think there is a problem. The bag has my receipt number on it, but the clothes inside are not mine. There are two black shirts, a gray jacket, and a red scarf. I brought in three white shirts and one pair of navy pants. I checked the pockets, and there is a movie ticket in the gray jacket, so maybe another customer got my bag by mistake. I am still nearby, so I can return to the shop now. Could you please check if my clothes are still there? I need the white shirts for work, so I would really like to get them back soon.",
+    "choices": [
+      { "id": "choice-a", "text": "손님은 세탁소에서 다른 사람의 옷을 받은 것 같다." },
+      { "id": "choice-b", "text": "손님이 맡긴 옷은 흰 셔츠 세 벌과 남색 바지 한 벌이다." },
+      { "id": "choice-c", "text": "가방 안에는 흰 셔츠와 남색 바지가 들어 있었다." },
+      { "id": "choice-d", "text": "손님은 이미 멀리 가서 다시 갈 수 없다고 말한다." },
+      { "id": "choice-e", "text": "회색 재킷 주머니에는 버스표가 들어 있었다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "neighbor-package-call",
+    "audioFileName": "neighbor-package-call.mp3",
+    "speakerGender": "female",
+    "script": "Hi, Daniel. This is your neighbor, Sora, from apartment 804. A delivery driver left a package in front of my door, but the name on the box is yours. I think he read the floor number wrong. The box is not very big, but it looks a little heavy. It says glass on one side, so I put it inside my apartment to keep it safe. I will be home for a while, and after that I have to go to my piano lesson. If you want, you can knock on my door before I leave. If not, I can bring it to you later. Please send me a message when you hear this.",
+    "choices": [
+      { "id": "choice-a", "text": "소라는 다니엘의 택배를 자신의 집 안에 보관하고 있다." },
+      { "id": "choice-b", "text": "상자에는 유리 제품이라는 표시가 있다." },
+      { "id": "choice-c", "text": "택배 기사는 다니엘의 집 문 앞에 정확히 상자를 놓았다." },
+      { "id": "choice-d", "text": "소라는 곧 수영 수업에 가야 한다." },
+      { "id": "choice-e", "text": "상자는 매우 작고 가벼워 보인다고 말한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "rainy-picnic-change",
+    "audioFileName": "rainy-picnic-change.mp3",
+    "speakerGender": "female",
+    "script": "Hey, everyone. About our picnic, I checked the sky, and it is already raining hard near the park. The grass will be too wet, and it will be difficult to sit outside. So let's change the plan. Please do not go to the park. Instead, meet at my apartment. I have a big table, and we can eat inside. I already bought bread, fruit, and juice. Jason, could you still bring the sandwiches? Anna, you do not need to bring paper cups because I have enough cups here. If anyone is late, call me before you arrive, because the front door code sometimes does not work well.",
+    "choices": [
+      { "id": "choice-a", "text": "비 때문에 소풍 장소가 공원에서 말하는 사람의 아파트로 바뀌었다." },
+      { "id": "choice-b", "text": "안나는 종이컵을 가져오지 않아도 된다." },
+      { "id": "choice-c", "text": "공원의 잔디가 말라 있어서 밖에 앉기 좋다고 한다." },
+      { "id": "choice-d", "text": "제이슨은 과일과 주스를 사 와야 한다." },
+      { "id": "choice-e", "text": "늦는 사람은 도착한 뒤에만 연락하면 된다고 한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "gym-locker-key",
+    "audioFileName": "gym-locker-key.mp3",
+    "speakerGender": "male",
+    "script": "Hello, I am calling about a locker key at your gym. I finished my exercise and returned the towel, but I forgot to give back the locker key. I only noticed it when I found it in my coat pocket at the bus stop. The number on the key is 27. I am sorry about that. I cannot come back right now because I have a meeting soon, but I can return it later. Please do not charge me for a lost key yet. The locker was empty when I left, and I did not take anything from it. If you need my member number, it is written on the card I used at the front desk.",
+    "choices": [
+      { "id": "choice-a", "text": "말하는 사람은 헬스장 사물함 열쇠를 반납하지 않고 가져왔다." },
+      { "id": "choice-b", "text": "열쇠 번호는 27번이다." },
+      { "id": "choice-c", "text": "말하는 사람은 열쇠를 잃어버려서 번호를 모른다." },
+      { "id": "choice-d", "text": "사물함 안에는 아직 물건이 남아 있다고 말한다." },
+      { "id": "choice-e", "text": "말하는 사람은 바로 헬스장으로 돌아갈 수 있다고 한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
     "promotionAmount": 5
   }
 ]

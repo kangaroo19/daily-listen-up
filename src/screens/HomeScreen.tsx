@@ -1,5 +1,6 @@
 import { Asset, Button, Stepper, useToast } from "@toss/tds-mobile";
 import { useState } from "react";
+import { TossBannerAd } from "../components/TossBannerAd";
 import { requestTossLogin } from "../integrations/toss";
 import {
   getCheckTodayQuiz,
@@ -127,6 +128,7 @@ export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
           hideLine
         />
       </Stepper>
+      <TossBannerAd />
       <div className="home-bottom-action">
         <Button
           display="block"

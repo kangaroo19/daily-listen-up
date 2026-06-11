@@ -2,9 +2,9 @@
 
 ## 목적
 
-이 문서는 듣기 문제 원본을 저장소 안에서 관리하고, 오디오 파일과 함께 실제 Firebase 프로젝트의 Firestore와 Storage에 적재하는 기준을 정리한다.
+이 문서는 듣기 문제 원본을 저장소 안에서 관리하거나 관리자 앱에서 작성하고, 오디오 파일과 함께 실제 Firebase 프로젝트의 Firestore와 Storage에 적재하는 기준을 정리한다.
 
-문제 원본은 날짜와 분리해 문제 단위로 보관한다. 운영 적재 시점에 날짜를 지정해 `quizzes/{quizDate}` 문서와 `quiz-audio/{quizDate}/...` Storage 객체를 만든다.
+저장소 기반 운영에서는 문제 원본을 날짜와 분리해 문제 단위로 보관한다. 관리자 앱 기반 운영에서는 날짜별 운영 문제를 직접 작성한다. 두 흐름 모두 최종 저장 결과는 `quizzes/{quizDate}` 문서와 `quiz-audio/{quizDate}/...` Storage 객체다.
 
 ## 원본 보관 위치
 
@@ -57,7 +57,7 @@ functions/src/content/
 - `correctChoiceIds`: 서버가 채점에 사용하는 정답 선택지 ID 목록
 - `promotionAmount`: 정답 시 지급할 토스 포인트 금액
 
-`speakerGender`는 스크립트의 화자 또는 내레이터에게 어울리는 음성을 고르기 위한 원본 메타데이터다. 앱 사용자가 문제를 풀 때 알아야 하는 정보가 아니므로 운영 Firestore 문서와 클라이언트의 오늘 문제 응답에는 기본적으로 포함하지 않는다.
+`speakerGender`는 스크립트의 화자 또는 내레이터에게 어울리는 음성을 고르기 위한 원본 메타데이터다. 관리자 앱에서는 ElevenLabs TTS 미리듣기 생성 시 성별별 고정 voice ID를 선택하는 기준으로 사용한다. 앱 사용자가 문제를 풀 때 알아야 하는 정보가 아니므로 운영 Firestore 문서와 클라이언트의 오늘 문제 응답에는 기본적으로 포함하지 않는다.
 
 `correctChoiceIds`, `script`, `promotionAmount`, `audioStoragePath`는 클라이언트의 오늘 문제 응답에 포함하지 않는다. 클라이언트는 서버 API가 내려주는 `quizDate`, `audioUrl`, `choices`만 사용한다.
 
@@ -114,6 +114,8 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 
 ## 운영 흐름
 
+### 저장소 기반 운영
+
 1. 45초~1분 분량의 영어 듣기 스크립트를 작성한다.
 2. 스크립트 기준으로 5개 선택지와 복수 정답을 만든다.
 3. `speakerGender`를 정하고, 해당 성별에 맞는 TTS 음성으로 mp3 파일을 만든다.
@@ -122,6 +124,19 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 6. `--date` 또는 `--days-ahead`로 실제 Firebase 프로젝트에 seed 한다.
 7. Firestore `quizzes/{quizDate}` 문서와 Storage 오디오 객체가 생성됐는지 확인한다.
 8. 서버 API로 오늘 문제 조회와 정답 검증 흐름을 확인한다.
+
+### 관리자 앱 기반 운영
+
+1. 관리자 앱에서 날짜, 스크립트, 5개 선택지, 복수 정답, 포인트 금액을 입력한다.
+2. `speakerGender`를 정한다.
+3. ElevenLabs TTS 미리듣기 생성 버튼을 눌러 스크립트와 화자 성별에 맞는 음성을 생성한다.
+4. 생성된 음성을 들어본 뒤 `이 음성 사용`을 눌러 최종 오디오로 선택한다.
+5. 생성된 음성이 적절하지 않거나 TTS 생성에 실패하면 직접 준비한 mp3 파일을 업로드한다.
+6. 퀴즈를 저장하면 관리자 앱이 최종 오디오를 `quiz-audio/{quizDate}/` 아래에 업로드하고 `quizzes/{quizDate}` 문서를 저장한다.
+7. 임시저장 상태로 확인한 뒤 필요할 때 발행한다.
+8. 서버 API로 오늘 문제 조회와 정답 검증 흐름을 확인한다.
+
+관리자 앱의 퀴즈 CRUD와 최종 오디오 업로드는 Firebase Client SDK를 사용한다. ElevenLabs TTS 미리듣기 생성은 API 키 보호를 위해 Firebase Function을 통해 호출한다.
 
 ## 검증 기준
 
@@ -132,4 +147,5 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 - 선택지는 5개여야 한다.
 - `correctChoiceIds`는 `choices`에 존재하는 ID만 포함해야 한다.
 - 오디오 파일은 mp3로 준비하고 Storage에는 `quiz-audio/{quizDate}/` 아래에 저장해야 한다.
+- ElevenLabs TTS 미리듣기 생성이 실패해도 직접 mp3 업로드로 대체할 수 있어야 한다.
 - 클라이언트 공개 응답에 정답, 스크립트, 포인트 금액, 화자 성별, 원본 Storage 경로가 노출되지 않아야 한다.

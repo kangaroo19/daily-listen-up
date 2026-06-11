@@ -10,8 +10,9 @@
 
 - 관리자 앱은 저장소 내부의 `apps/admin` 디렉토리에 독립 React/Vite 앱으로 만든다.
 - 기존 Toss 미니앱의 `src/` 내부에는 관리자 화면을 넣지 않는다.
-- 관리자 앱은 Firebase Client SDK만 사용한다.
-- 관리자 앱을 위한 새 Firebase Functions API는 만들지 않는다.
+- 관리자 앱의 퀴즈 CRUD와 오디오 업로드는 Firebase Client SDK만 사용한다.
+- ElevenLabs TTS 미리듣기 생성은 API 키 보호를 위해 최소 Firebase Function을 사용하는 예외로 둔다.
+- TTS Function은 음성 미리듣기 생성만 담당하고, 퀴즈 등록, 수정, 삭제, 발행 API로 확장하지 않는다.
 - 관리자 앱은 GitHub Pages 같은 정적 호스팅으로 배포할 수 있어야 한다.
 - 기존 사용자 앱은 계속 Firebase Functions API를 통해 문제를 조회하고 답안을 제출한다.
 
@@ -35,10 +36,21 @@
 - 퀴즈 삭제
 - 임시저장된 퀴즈 발행
 - 퀴즈 상세 미리보기
+- 스크립트 기반 TTS 미리듣기 생성
+- 생성된 TTS 음성을 최종 오디오로 선택
 - mp3 오디오 파일 업로드
 
 새 퀴즈는 기본적으로 `isPublished = false` 상태로 저장한다.
 운영자가 별도 발행 액션을 수행해야 사용자 앱에서 오늘 문제로 노출될 수 있다.
+
+오디오는 두 가지 방식으로 준비할 수 있다.
+
+1. 스크립트와 화자 성별을 기준으로 ElevenLabs TTS 미리듣기를 생성한다.
+2. 생성된 음성을 확인한 뒤 `이 음성 사용`을 눌러 최종 업로드 대상으로 지정한다.
+3. 또는 운영자가 직접 준비한 mp3 파일을 파일 input으로 선택한다.
+4. 퀴즈를 저장할 때 선택된 최종 오디오를 Firebase Storage에 업로드하고 `audioStoragePath`를 Firestore에 저장한다.
+
+TTS 미리듣기 생성 실패는 퀴즈 저장 흐름 전체를 막지 않는다. 운영자는 직접 mp3 업로드로 대체할 수 있다.
 
 ## 퀴즈 데이터 구조
 
@@ -92,6 +104,9 @@ v1에서는 이 제한을 관리자 UI 정책으로 처리한다. Firestore Rule
 - 일반 앱 사용자는 기존 서버 API를 통해서만 오늘 문제를 조회한다.
 - 정답, 스크립트, 포인트 금액, 원본 Storage 경로는 일반 앱의 공개 응답에 포함하지 않는다.
 - 토스 로그인, 정답 검증, 포인트 지급, 중복 지급 방지는 기존 Firebase Functions 서버 책임으로 유지한다.
+- ElevenLabs API 키는 관리자 앱의 React 코드, 환경변수, 빌드 산출물에 포함하지 않는다.
+- ElevenLabs API 키와 성별별 voice ID는 Firebase Function의 Secret 또는 서버 전용 환경변수로 관리한다.
+- 관리자 앱은 Firebase Auth ID token과 함께 스크립트, 화자 성별만 TTS Function에 전달한다.
 
 ## 배포 기준
 
@@ -108,3 +123,4 @@ v1에서는 이 제한을 관리자 UI 정책으로 처리한다. Firestore Rule
 - 운영 변경 이력 저장 방식
 - Firestore Rules 기반 cross-collection 수정/삭제 잠금
 - 관리자 앱의 상세 화면 디자인과 컴포넌트 구성
+- ElevenLabs female/male voice ID의 실제 값

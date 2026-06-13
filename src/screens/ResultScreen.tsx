@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button, useToast } from '@toss/tds-mobile';
+import { TossBannerAd } from '../components/TossBannerAd';
 import { showTossAd } from '../integrations/tossAds';
 import {
   getRewardStatus,
@@ -137,6 +138,8 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
           <p>{script}</p>
         </div>
       )}
+
+      <TossBannerAd />
 
       <div className="result-bottom-action">
         {!answerResult.isCorrect && (

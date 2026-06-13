@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, useToast } from '@toss/tds-mobile';
+import { TossBannerAd } from '../components/TossBannerAd';
 import { showTossAd } from '../integrations/tossAds';
 import { getTodayQuiz, postAnswerResult, type AnswerResultResponse, type TodayQuizResponse } from '../services/apiClient';
 import { getAppSessionToken } from '../services/appSession';
@@ -193,6 +194,8 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
           );
         })}
       </div>
+
+      <TossBannerAd />
 
       <div className="quiz-bottom-action">
         <Button display="block" disabled={!canSubmit} loading={isSubmitting} onClick={handleSubmitAnswer}>

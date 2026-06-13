@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HomeScreen } from './screens/HomeScreen';
 import { QuizScreen } from './screens/QuizScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import type { AppScreen } from './routes';
 import type { AnswerResultResponse } from './services/apiClient';
+import { initializeTossBannerAds } from './integrations/tossBannerAds';
 
 type AnswerResultState = AnswerResultResponse & {
   quizDate: string;
@@ -12,6 +13,10 @@ type AnswerResultState = AnswerResultResponse & {
 export default function App() {
   const [screen, setScreen] = useState<AppScreen>('home');
   const [answerResult, setAnswerResult] = useState<AnswerResultState | null>(null);
+
+  useEffect(() => {
+    void initializeTossBannerAds();
+  }, []);
 
   function showAnswerResult(result: AnswerResultResponse, quizDate: string) {
     setAnswerResult({

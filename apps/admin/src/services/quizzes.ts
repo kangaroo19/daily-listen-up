@@ -1,11 +1,16 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
+  limit,
   onSnapshot,
   orderBy,
   query,
   setDoc,
+  updateDoc,
+  where,
   type QuerySnapshot,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -44,6 +49,22 @@ export async function saveQuiz(quiz: Quiz) {
   await setDoc(doc(db, 'quizzes', quiz.quizDate), quiz);
 }
 
+export async function updateQuizPublication(quizDate: string, isPublished: boolean) {
+  if (!db) {
+    throw new Error('Firebase 환경변수가 없어 발행 상태를 변경할 수 없습니다.');
+  }
+
+  await updateDoc(doc(db, 'quizzes', quizDate), { isPublished });
+}
+
+export async function deleteQuizDocument(quizDate: string) {
+  if (!db) {
+    throw new Error('Firebase 환경변수가 없어 퀴즈를 삭제할 수 없습니다.');
+  }
+
+  await deleteDoc(doc(db, 'quizzes', quizDate));
+}
+
 export async function quizExists(quizDate: string) {
   if (!db) {
     throw new Error('Firebase 환경변수가 없어 퀴즈를 확인할 수 없습니다.');
@@ -51,4 +72,13 @@ export async function quizExists(quizDate: string) {
 
   const snapshot = await getDoc(doc(db, 'quizzes', quizDate));
   return snapshot.exists();
+}
+
+export async function hasUserProgressForQuiz(quizDate: string) {
+  if (!db) {
+    throw new Error('Firebase 환경변수가 없어 진행 기록을 확인할 수 없습니다.');
+  }
+
+  const snapshot = await getDocs(query(collection(db, 'userProgress'), where('quizDate', '==', quizDate), limit(1)));
+  return !snapshot.empty;
 }

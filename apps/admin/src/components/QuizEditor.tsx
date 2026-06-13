@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { deleteQuizAudio, isMp3File, uploadQuizAudio } from '../services/audioStorage';
-import { quizExists, saveQuiz } from '../services/quizzes';
+import { deleteQuizDocument, quizExists, saveQuiz, updateQuizPublication } from '../services/quizzes';
 import { generateTtsPreview, type SpeakerGender } from '../services/ttsPreview';
 import { createEmptyQuizForm, Quiz, QuizFormState, quizToFormState } from '../types/quiz';
 import {
@@ -11,6 +11,8 @@ import {
 } from '../validation/quizValidation';
 
 type QuizEditorProps = {
+  hasProgress?: boolean;
+  onDeleted: (message: string) => void;
   onSaved: (quiz: Quiz, message: string) => void;
   quizzes: Quiz[];
   selectedQuiz: Quiz | null;
@@ -20,7 +22,7 @@ function getTodayValue() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) {
+export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, selectedQuiz }: QuizEditorProps) {
   const [form, setForm] = useState<QuizFormState>(() => createEmptyQuizForm(getTodayValue()));
   const [errors, setErrors] = useState<QuizValidationErrors>({});
   const [mode, setMode] = useState<'new' | 'edit'>('new');
@@ -69,6 +71,11 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
 
   function handleAudioFileChange(file: File | undefined) {
     setWarningMessage('');
+
+    if (hasProgress) {
+      setWarningMessage('진행 기록이 있는 퀴즈는 오디오를 교체할 수 없습니다.');
+      return;
+    }
 
     if (audioPreviewUrl) {
       URL.revokeObjectURL(audioPreviewUrl);
@@ -161,7 +168,10 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     setIsSaving(true);
 
     try {
-      let payload = toQuizPayload(form);
+      let payload = {
+        ...toQuizPayload(form),
+        isPublished: selectedQuiz?.isPublished ?? false,
+      };
       const existingQuiz = quizzes.find((quiz) => quiz.quizDate === payload.quizDate);
 
       if (mode === 'new' && (existingQuiz || (await quizExists(payload.quizDate)))) {
@@ -176,7 +186,18 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       const previousAudioStoragePath = selectedQuiz?.audioStoragePath;
       let uploadedAudioPath = '';
 
-      if (audioFile) {
+      if (hasProgress && selectedQuiz) {
+        payload = {
+          ...payload,
+          choices: payload.choices.map((choice, index) => ({
+            id: selectedQuiz.choices[index]?.id ?? choice.id,
+            text: choice.text,
+          })),
+          correctChoiceIds: selectedQuiz.correctChoiceIds,
+          promotionAmount: selectedQuiz.promotionAmount,
+          audioStoragePath: selectedQuiz.audioStoragePath,
+        };
+      } else if (audioFile) {
         try {
           uploadedAudioPath = await uploadQuizAudio(payload.quizDate, audioFile);
           payload = {
@@ -222,6 +243,74 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     }
   }
 
+  async function handlePublish() {
+    if (!selectedQuiz) {
+      return;
+    }
+
+    try {
+      await updateQuizPublication(selectedQuiz.quizDate, true);
+      onSaved({ ...selectedQuiz, isPublished: true }, '퀴즈를 발행했습니다.');
+    } catch (error) {
+      setErrors({ form: error instanceof Error ? error.message : '퀴즈 발행에 실패했습니다.' });
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!selectedQuiz) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      hasProgress
+        ? '발행 해제하면 기존 진행자의 재도전과 스크립트 열람도 막힙니다. 계속할까요?'
+        : '이 퀴즈를 발행 해제할까요?',
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await updateQuizPublication(selectedQuiz.quizDate, false);
+      onSaved({ ...selectedQuiz, isPublished: false }, '퀴즈를 발행 해제했습니다.');
+    } catch (error) {
+      setErrors({ form: error instanceof Error ? error.message : '퀴즈 발행 해제에 실패했습니다.' });
+    }
+  }
+
+  async function handleDelete() {
+    if (!selectedQuiz || hasProgress) {
+      return;
+    }
+
+    const confirmed = window.confirm('진행 기록이 없는 퀴즈를 실제 삭제합니다. 계속할까요?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteQuizDocument(selectedQuiz.quizDate);
+    } catch (error) {
+      setErrors({ form: error instanceof Error ? error.message : '퀴즈 삭제에 실패했습니다.' });
+      return;
+    }
+
+    let deleteMessage = '퀴즈를 삭제했습니다.';
+
+    if (selectedQuiz.audioStoragePath) {
+      try {
+        await deleteQuizAudio(selectedQuiz.audioStoragePath);
+      } catch {
+        deleteMessage = `퀴즈 문서는 삭제했지만 ${selectedQuiz.audioStoragePath} 오디오 삭제에 실패했습니다.`;
+      }
+    }
+
+    onDeleted(deleteMessage);
+    startNewQuiz();
+  }
+
   return (
     <form className="detail-panel" onSubmit={handleSubmit}>
       <div className="panel-header">
@@ -243,6 +332,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
         <label>
           퀴즈 날짜
           <input
+            disabled={mode === 'edit'}
             onChange={(event) => setForm((current) => ({ ...current, quizDate: event.target.value }))}
             type="date"
             value={form.quizDate}
@@ -253,6 +343,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
         <label>
           포인트 금액
           <input
+            disabled={hasProgress}
             min="1"
             onChange={(event) => setForm((current) => ({ ...current, promotionAmount: event.target.value }))}
             type="number"
@@ -262,9 +353,18 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
         {errors.promotionAmount ? <p className="field-error">{errors.promotionAmount}</p> : null}
 
         <div className="inline-status">
-          <span className="badge warning">미발행 저장</span>
-          <span className="badge neutral">진행 기록 확인 전</span>
+          <span className={`badge ${selectedQuiz?.isPublished ? 'success' : 'warning'}`}>
+            {selectedQuiz?.isPublished ? '발행' : '미발행'}
+          </span>
+          <span className={`badge ${hasProgress ? 'warning' : 'neutral'}`}>
+            {hasProgress ? '진행 기록 있음' : '진행 기록 없음'}
+          </span>
         </div>
+        {hasProgress ? (
+          <p className="warning-message">
+            진행 기록이 있어 정답, 포인트, 오디오, 선택지 ID와 개수는 잠깁니다. 선택지 문구와 스크립트 오탈자만 정정하세요.
+          </p>
+        ) : null}
       </section>
 
       <section className="form-section">
@@ -274,6 +374,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
             <input
               aria-label={`${index + 1}번 정답`}
               checked={form.correctChoiceIds.includes(choice.id)}
+              disabled={hasProgress}
               onChange={() => toggleCorrectChoice(choice.id)}
               type="checkbox"
             />
@@ -314,10 +415,10 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
           </select>
         </label>
         <div className="audio-actions">
-          <button className="secondary-button" disabled={isGeneratingTts} onClick={handleGenerateTtsPreview} type="button">
+          <button className="secondary-button" disabled={hasProgress || isGeneratingTts} onClick={handleGenerateTtsPreview} type="button">
             {isGeneratingTts ? 'TTS 생성 중' : 'TTS 미리듣기'}
           </button>
-          <button className="secondary-button" disabled={!ttsPreviewBlob} onClick={useTtsPreviewAsAudio} type="button">
+          <button className="secondary-button" disabled={hasProgress || !ttsPreviewBlob} onClick={useTtsPreviewAsAudio} type="button">
             이 음성 사용
           </button>
         </div>
@@ -334,6 +435,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
           mp3 파일
           <input
             accept="audio/mpeg,.mp3"
+            disabled={hasProgress}
             onChange={(event) => handleAudioFileChange(event.target.files?.[0])}
             type="file"
           />
@@ -351,6 +453,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
           <input
             onChange={(event) => setForm((current) => ({ ...current, audioStoragePath: event.target.value }))}
             placeholder="quiz-audio/YYYY-MM-DD/file.mp3"
+            disabled={hasProgress}
             type="text"
             value={form.audioStoragePath}
           />
@@ -370,11 +473,14 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       </section>
 
       <div className="action-bar">
-        <button className="secondary-button" disabled type="button">
+        <button className="danger-button" disabled={!selectedQuiz || hasProgress} onClick={handleDelete} type="button">
+          삭제
+        </button>
+        <button className="secondary-button" disabled={!selectedQuiz || !selectedQuiz.isPublished} onClick={handleUnpublish} type="button">
           발행 해제
         </button>
-        <button className="secondary-button" disabled type="button">
-          삭제
+        <button className="secondary-button" disabled={!selectedQuiz || selectedQuiz.isPublished} onClick={handlePublish} type="button">
+          발행
         </button>
         <button className="primary-button" disabled={isSaving} type="submit">
           {isSaving ? '저장 중' : '미발행 저장'}

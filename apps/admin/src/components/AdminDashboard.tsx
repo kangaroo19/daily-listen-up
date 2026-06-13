@@ -1,6 +1,7 @@
 import { signOut } from 'firebase/auth';
 import { useState } from 'react';
 import { auth } from '../config/firebase';
+import { useQuizProgressMap } from '../hooks/useQuizProgressMap';
 import { useQuizzes } from '../hooks/useQuizzes';
 import { Quiz } from '../types/quiz';
 import { QuizEditor } from './QuizEditor';
@@ -12,22 +13,29 @@ type AdminDashboardProps = {
 
 export function AdminDashboard({ email }: AdminDashboardProps) {
   const { quizzes, errorMessage, isLoading } = useQuizzes();
+  const progressMap = useQuizProgressMap(quizzes);
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [saveMessage, setSaveMessage] = useState('');
 
   const unpublishedCount = quizzes.filter((quiz) => !quiz.isPublished).length;
   const publishedCount = quizzes.filter((quiz) => quiz.isPublished).length;
+  const progressCount = quizzes.filter((quiz) => progressMap[quiz.quizDate]).length;
 
   const summaryItems = [
     { label: '전체 문제', value: `${quizzes.length}건`, tone: 'neutral' },
     { label: '발행', value: `${publishedCount}건`, tone: 'success' },
     { label: '미발행', value: `${unpublishedCount}건`, tone: 'warning' },
     { label: '발행 해제', value: '0건', tone: 'danger' },
-    { label: '주의 필요', value: errorMessage ? '1건' : '0건', tone: errorMessage ? 'danger' : 'neutral' },
+    { label: '진행 기록 있음', value: `${progressCount}건`, tone: progressCount > 0 ? 'warning' : 'neutral' },
   ];
 
   function handleSaved(quiz: Quiz, message: string) {
     setSelectedQuiz(quiz);
+    setSaveMessage(message);
+  }
+
+  function handleDeleted(message: string) {
+    setSelectedQuiz(null);
     setSaveMessage(message);
   }
 
@@ -88,10 +96,17 @@ export function AdminDashboard({ email }: AdminDashboardProps) {
             errorMessage={errorMessage}
             isLoading={isLoading}
             onSelect={setSelectedQuiz}
+            progressMap={progressMap}
             quizzes={quizzes}
             selectedQuizDate={selectedQuiz?.quizDate ?? ''}
           />
-          <QuizEditor onSaved={handleSaved} quizzes={quizzes} selectedQuiz={selectedQuiz} />
+          <QuizEditor
+            hasProgress={selectedQuiz ? Boolean(progressMap[selectedQuiz.quizDate]) : false}
+            onDeleted={handleDeleted}
+            onSaved={handleSaved}
+            quizzes={quizzes}
+            selectedQuiz={selectedQuiz}
+          />
         </section>
       </main>
     </div>

@@ -4,11 +4,12 @@ type QuizListProps = {
   errorMessage: string;
   isLoading: boolean;
   onSelect: (quiz: Quiz) => void;
+  progressMap: Record<string, boolean>;
   quizzes: Quiz[];
   selectedQuizDate: string;
 };
 
-export function QuizList({ errorMessage, isLoading, onSelect, quizzes, selectedQuizDate }: QuizListProps) {
+export function QuizList({ errorMessage, isLoading, onSelect, progressMap, quizzes, selectedQuizDate }: QuizListProps) {
   return (
     <div className="list-panel" id="quiz">
       <div className="panel-header">
@@ -28,7 +29,7 @@ export function QuizList({ errorMessage, isLoading, onSelect, quizzes, selectedQ
         <div className="quiz-table-row quiz-table-head" role="row">
           <span role="columnheader">날짜</span>
           <span role="columnheader">상태</span>
-          <span role="columnheader">선택지</span>
+          <span role="columnheader">진행</span>
         </div>
         {quizzes.map((quiz) => (
           <button
@@ -47,7 +48,11 @@ export function QuizList({ errorMessage, isLoading, onSelect, quizzes, selectedQ
                 {quiz.isPublished ? '발행' : '미발행'}
               </span>
             </span>
-            <span role="cell">{quiz.choices.length}개</span>
+            <span role="cell">
+              <span className={`badge ${progressMap[quiz.quizDate] ? 'warning' : 'neutral'}`}>
+                {progressMap[quiz.quizDate] ? '기록 있음' : '기록 없음'}
+              </span>
+            </span>
           </button>
         ))}
       </div>

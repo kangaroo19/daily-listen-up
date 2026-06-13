@@ -4,7 +4,11 @@ export type QuizValidationErrors = Partial<Record<keyof QuizFormState | 'form', 
 
 const quizDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 
-export function validateQuizForm(form: QuizFormState): QuizValidationErrors {
+type ValidateQuizFormOptions = {
+  hasPendingAudioFile?: boolean;
+};
+
+export function validateQuizForm(form: QuizFormState, options: ValidateQuizFormOptions = {}): QuizValidationErrors {
   const errors: QuizValidationErrors = {};
   const choiceIds = new Set(form.choices.map((choice) => choice.id));
   const promotionAmount = Number(form.promotionAmount);
@@ -29,8 +33,8 @@ export function validateQuizForm(form: QuizFormState): QuizValidationErrors {
     errors.script = '스크립트를 입력하세요.';
   }
 
-  if (!form.audioStoragePath.trim()) {
-    errors.audioStoragePath = '04번 오디오 업로드 전까지는 기존 Storage 경로를 입력해야 저장할 수 있습니다.';
+  if (!form.audioStoragePath.trim() && !options.hasPendingAudioFile) {
+    errors.audioStoragePath = 'mp3 파일을 선택하거나 기존 Storage 경로를 입력하세요.';
   }
 
   if (!Number.isInteger(promotionAmount) || promotionAmount <= 0) {
@@ -41,7 +45,7 @@ export function validateQuizForm(form: QuizFormState): QuizValidationErrors {
 }
 
 export function hasValidationErrors(errors: QuizValidationErrors) {
-  return Object.keys(errors).length > 0;
+  return Object.values(errors).some(Boolean);
 }
 
 export function toQuizPayload(form: QuizFormState): Quiz {

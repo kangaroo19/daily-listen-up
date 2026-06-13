@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -21,6 +22,7 @@ export const firebaseConfigError =
 export const firebaseApp = firebaseConfigError ? null : initializeApp(firebaseConfig);
 export const auth: Auth | null = firebaseApp ? getAuth(firebaseApp) : null;
 export const db = firebaseApp ? getFirestore(firebaseApp) : null;
+export const storage = firebaseApp ? getStorage(firebaseApp) : null;
 
 export async function getAdminIdToken() {
   return auth?.currentUser?.getIdToken() ?? null;

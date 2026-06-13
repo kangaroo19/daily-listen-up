@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from 'react';
+import { deleteQuizAudio, isMp3File, uploadQuizAudio } from '../services/audioStorage';
 import { quizExists, saveQuiz } from '../services/quizzes';
 import { createEmptyQuizForm, Quiz, QuizFormState, quizToFormState } from '../types/quiz';
 import {
@@ -23,6 +24,9 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
   const [errors, setErrors] = useState<QuizValidationErrors>({});
   const [mode, setMode] = useState<'new' | 'edit'>('new');
   const [notice, setNotice] = useState('');
+  const [warningMessage, setWarningMessage] = useState('');
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -31,6 +35,9 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       setMode('edit');
       setErrors({});
       setNotice('');
+      setWarningMessage('');
+      setAudioFile(null);
+      setAudioPreviewUrl('');
     }
   }, [selectedQuiz]);
 
@@ -39,6 +46,34 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     setMode('new');
     setErrors({});
     setNotice('');
+    setWarningMessage('');
+    setAudioFile(null);
+    setAudioPreviewUrl('');
+  }
+
+  function handleAudioFileChange(file: File | undefined) {
+    setWarningMessage('');
+
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
+    }
+
+    if (!file) {
+      setAudioFile(null);
+      setAudioPreviewUrl('');
+      return;
+    }
+
+    if (!isMp3File(file)) {
+      setAudioFile(null);
+      setAudioPreviewUrl('');
+      setErrors((current) => ({ ...current, audioStoragePath: 'mp3 파일만 업로드할 수 있습니다.' }));
+      return;
+    }
+
+    setErrors((current) => ({ ...current, audioStoragePath: undefined }));
+    setAudioFile(file);
+    setAudioPreviewUrl(URL.createObjectURL(file));
   }
 
   function updateChoiceText(choiceId: string, text: string) {
@@ -61,7 +96,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     event.preventDefault();
     setNotice('');
 
-    const nextErrors = validateQuizForm(form);
+    const nextErrors = validateQuizForm(form, { hasPendingAudioFile: Boolean(audioFile) });
     setErrors(nextErrors);
 
     if (hasValidationErrors(nextErrors)) {
@@ -71,7 +106,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     setIsSaving(true);
 
     try {
-      const payload = toQuizPayload(form);
+      let payload = toQuizPayload(form);
       const existingQuiz = quizzes.find((quiz) => quiz.quizDate === payload.quizDate);
 
       if (mode === 'new' && (existingQuiz || (await quizExists(payload.quizDate)))) {
@@ -83,9 +118,46 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
         return;
       }
 
-      await saveQuiz(payload);
+      const previousAudioStoragePath = selectedQuiz?.audioStoragePath;
+      let uploadedAudioPath = '';
+
+      if (audioFile) {
+        try {
+          uploadedAudioPath = await uploadQuizAudio(payload.quizDate, audioFile);
+          payload = {
+            ...payload,
+            audioStoragePath: uploadedAudioPath,
+          };
+        } catch (error) {
+          setErrors({
+            form: error instanceof Error ? error.message : '오디오 업로드에 실패했습니다.',
+          });
+          return;
+        }
+      }
+
+      try {
+        await saveQuiz(payload);
+      } catch (error) {
+        const cleanupMessage = uploadedAudioPath ? ` 새로 업로드된 ${uploadedAudioPath} 파일은 운영 정리가 필요합니다.` : '';
+        setErrors({
+          form: `${error instanceof Error ? error.message : '퀴즈 저장에 실패했습니다.'}${cleanupMessage}`,
+        });
+        return;
+      }
+
+      if (uploadedAudioPath && previousAudioStoragePath && previousAudioStoragePath !== uploadedAudioPath) {
+        try {
+          await deleteQuizAudio(previousAudioStoragePath);
+        } catch {
+          setWarningMessage(`기존 오디오 ${previousAudioStoragePath} 삭제에 실패했습니다. 운영 정리가 필요합니다.`);
+        }
+      }
+
       onSaved(payload, mode === 'new' ? '미발행 퀴즈를 저장했습니다.' : '퀴즈를 수정했습니다.');
       setMode('edit');
+      setAudioFile(null);
+      setAudioPreviewUrl('');
     } catch (error) {
       setErrors({
         form: error instanceof Error ? error.message : '퀴즈 저장에 실패했습니다.',
@@ -108,6 +180,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       </div>
 
       {notice ? <p className="notice-message" role="status">{notice}</p> : null}
+      {warningMessage ? <p className="warning-message" role="status">{warningMessage}</p> : null}
       {errors.form ? <p className="error-message" role="alert">{errors.form}</p> : null}
 
       <section className="form-section">
@@ -176,6 +249,22 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       <section className="form-section">
         <h4>오디오</h4>
         <label>
+          mp3 파일
+          <input
+            accept="audio/mpeg,.mp3"
+            onChange={(event) => handleAudioFileChange(event.target.files?.[0])}
+            type="file"
+          />
+        </label>
+        {audioFile ? (
+          <div className="audio-preview">
+            <strong>{audioFile.name}</strong>
+            <audio controls src={audioPreviewUrl}>
+              <track kind="captions" />
+            </audio>
+          </div>
+        ) : null}
+        <label>
           Storage 경로
           <input
             onChange={(event) => setForm((current) => ({ ...current, audioStoragePath: event.target.value }))}
@@ -185,7 +274,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
           />
         </label>
         {errors.audioStoragePath ? <p className="field-error">{errors.audioStoragePath}</p> : null}
-        <p className="panel-message">mp3 업로드와 TTS 미리듣기는 다음 작업에서 연결합니다.</p>
+        <p className="panel-message">새 mp3를 선택하면 저장 시 quiz-audio/YYYY-MM-DD/... 경로로 업로드됩니다.</p>
       </section>
 
       <section className="form-section preview-box">

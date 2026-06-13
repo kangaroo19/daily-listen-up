@@ -374,7 +374,8 @@ textarea {
 
 .field-error,
 .panel-message,
-.notice-message {
+.notice-message,
+.warning-message {
   font-size: 13px;
 }
 
@@ -394,6 +395,30 @@ textarea {
   background: #eff6ff;
   color: #1d4ed8;
   font-weight: 700;
+}
+
+.warning-message {
+  padding: 10px 12px;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #92400e;
+  font-weight: 700;
+}
+
+.audio-preview {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+  color: #374151;
+  font-size: 13px;
+}
+
+.audio-preview audio {
+  width: 100%;
 }
 
 .primary-button,

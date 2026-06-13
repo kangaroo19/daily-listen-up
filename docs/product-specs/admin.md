@@ -21,11 +21,14 @@
 - 관리자 로그인은 Firebase Auth 이메일/비밀번호 방식을 사용한다.
 - Firebase Console에서 Email/Password Auth provider를 활성화한다.
 - 관리자 계정은 1개로 시작한다.
-- Firestore와 Storage 접근 권한은 관리자 UID allowlist로 제한한다.
-- 관리자 UID는 Firestore Rules와 Storage Rules에 명시한다.
+- 관리자 앱의 Firestore와 Storage **직접 접근 권한**은 관리자 UID allowlist로 제한한다.
+- 저장소의 Firestore Rules와 Storage Rules에는 관리자 UID placeholder만 둔다.
+- 실제 관리자 UID는 저장소에 커밋하지 않고, 배포 전 운영 환경에서 Rules placeholder를 실제 UID로 치환해 배포한다.
 - 관리자 비밀번호를 React 코드, 환경변수, 빌드 산출물에 하드코딩하지 않는다.
 
 ## 관리 기능
+
+상세 UI 기준은 `docs/design-docs/admin-dashboard-ui.md`를 따른다.
 
 관리자 앱은 아래 기능을 제공한다.
 
@@ -34,23 +37,28 @@
 - 새 퀴즈 등록
 - 기존 퀴즈 수정
 - 퀴즈 삭제
-- 임시저장된 퀴즈 발행
+- 미발행 저장된 퀴즈 발행
 - 퀴즈 상세 미리보기
 - 스크립트 기반 TTS 미리듣기 생성
 - 생성된 TTS 음성을 최종 오디오로 선택
 - mp3 오디오 파일 업로드
 
 새 퀴즈는 기본적으로 `isPublished = false` 상태로 저장한다.
+이 저장은 부분 입력 초안 저장이 아니라, 완성된 문제를 사용자 앱에 공개하지 않은 상태로 저장하는 미발행 저장이다.
 운영자가 별도 발행 액션을 수행해야 사용자 앱에서 오늘 문제로 노출될 수 있다.
 
-오디오는 두 가지 방식으로 준비할 수 있다.
+오디오는 아래 흐름으로 준비한다.
 
 1. 스크립트와 화자 성별을 기준으로 ElevenLabs TTS 미리듣기를 생성한다.
-2. 생성된 음성을 확인한 뒤 `이 음성 사용`을 눌러 최종 업로드 대상으로 지정한다.
-3. 또는 운영자가 직접 준비한 mp3 파일을 파일 input으로 선택한다.
-4. 퀴즈를 저장할 때 선택된 최종 오디오를 Firebase Storage에 업로드하고 `audioStoragePath`를 Firestore에 저장한다.
+2. TTS Function은 생성된 mp3를 `audio/mpeg` blob 응답으로 반환하고, Firestore 또는 Storage에 저장하지 않는다.
+3. 생성된 음성을 확인한 뒤 `이 음성 사용`을 눌러 최종 업로드 대상으로 지정한다.
+4. 또는 운영자가 직접 준비한 mp3 파일을 파일 input으로 선택한다.
+5. 퀴즈를 저장할 때 선택된 최종 오디오를 Firebase Storage에 업로드하고 `audioStoragePath`를 Firestore에 저장한다.
 
 TTS 미리듣기 생성 실패는 퀴즈 저장 흐름 전체를 막지 않는다. 운영자는 직접 mp3 업로드로 대체할 수 있다.
+
+기존 퀴즈의 오디오를 교체할 때는 새 오디오 업로드와 Firestore `audioStoragePath` 저장이 모두 성공한 뒤 기존 Storage 오디오 파일 삭제를 시도한다.
+기존 오디오 파일 삭제 실패는 퀴즈 저장 실패로 보지 않고 운영 정리 대상으로 남긴다.
 
 ## 퀴즈 데이터 구조
 
@@ -80,6 +88,7 @@ quiz-audio/{quizDate}/{fileName}
 
 관리자 앱은 저장 전 아래 기준을 검증한다.
 
+- 미발행 저장도 완성된 퀴즈 저장이므로 아래 필수 검증을 모두 통과해야 한다.
 - `quizDate`는 `YYYY-MM-DD` 형식이어야 한다.
 - 선택지는 정확히 5개여야 한다.
 - 정답은 최소 1개 이상이어야 한다.
@@ -88,17 +97,44 @@ quiz-audio/{quizDate}/{fileName}
 - `promotionAmount`는 양수 정수여야 한다.
 - 같은 날짜의 퀴즈 문서가 이미 있으면 신규 등록 대신 수정 흐름으로 안내한다.
 
-## 수정과 삭제 제한
+## 수정과 발행 해제 정책
 
-해당 `quizDate`에 사용자 진행 기록이 있으면 퀴즈 수정과 삭제를 허용하지 않는다.
+관리자 앱은 `userProgress` 컬렉션에서 같은 `quizDate`의 진행 기록 존재 여부를 확인한다.
 
-관리자 앱은 `userProgress` 컬렉션에서 같은 `quizDate`의 진행 기록 존재 여부를 확인해 수정과 삭제 버튼을 비활성화한다.
+진행 기록이 없는 퀴즈는 아래 작업을 허용한다.
 
-v1에서는 이 제한을 관리자 UI 정책으로 처리한다. Firestore Rules만으로 `userProgress`와 `quizzes` 사이의 cross-collection 잠금 검증을 강제하는 정책은 확정하지 않는다.
+- 모든 퀴즈 필드 수정
+- 오디오 교체
+- 발행 해제
+- Firestore 문서와 필요 시 Storage 오디오 파일 실제 삭제
+
+진행 기록이 있는 퀴즈는 사용자 판정과 보상 기준이 흔들리지 않도록 아래 필드를 수정할 수 없다.
+
+- 선택지 ID
+- 선택지 개수
+- `correctChoiceIds`
+- `promotionAmount`
+- 오디오 파일
+
+진행 기록이 있는 퀴즈에서 허용하는 수정은 아래 오탈자 정정으로 제한한다.
+
+- `choices[].text` 오탈자 정정
+- 현재 오디오와 의미가 달라지지 않는 `script` 오탈자 또는 표기 정정
+
+모든 퀴즈는 `isPublished = false`로 발행 해제할 수 있다.
+진행 기록이 있는 퀴즈는 실제 삭제할 수 없으며, 삭제 대신 발행 해제만 허용한다.
+발행 해제는 긴급 중단 액션이며, 일반 사용자 앱의 오늘 문제 신규 조회뿐 아니라 기존 진행자의 재도전과 스크립트 열람도 막는다.
+진행 기록이 있는 퀴즈를 수정하거나 발행 해제할 때는 기존 사용자 진행, 보상 기록은 변경되지 않으며 발행 해제 이후 사용자 API에서 해당 퀴즈를 더 이상 공개 문제로 찾지 못할 수 있다는 경고를 표시한다.
+
+퀴즈 버전 관리, 부분 입력 초안 저장, 기존 제출 재채점, 포인트 회수 또는 추가 지급 정책은 v1 범위에 포함하지 않는다.
+스크립트와 음성이 달라질 정도의 콘텐츠 수정은 기존 퀴즈 수정이 아니라 새 퀴즈 작성 또는 발행 해제 후 재작성 대상으로 본다.
 
 ## 보안 정책
 
 - Firestore Rules는 관리자 UID만 `quizzes` 컬렉션을 읽고 쓸 수 있게 제한한다.
+- Firestore Rules는 관리자 UID만 `userProgress` 컬렉션을 읽을 수 있게 제한한다.
+- 관리자 앱의 `userProgress` 접근은 v1에서 같은 `quizDate`의 진행 기록 존재 여부 확인에만 사용하며, 생성, 수정, 삭제는 허용하지 않는다.
+- `userProgress` 존재 여부 확인은 추후 관리자 전용 Function 또는 날짜별 요약 문서로 축소할 수 있다.
 - Storage Rules는 관리자 UID만 `quiz-audio/**` 경로에 업로드, 수정, 삭제할 수 있게 제한한다.
 - 일반 앱 사용자는 Firestore와 Storage를 직접 읽거나 쓰지 않는다.
 - 일반 앱 사용자는 기존 서버 API를 통해서만 오늘 문제를 조회한다.
@@ -122,5 +158,6 @@ v1에서는 이 제한을 관리자 UI 정책으로 처리한다. Firestore Rule
 - 다중 관리자 역할과 권한 분리
 - 운영 변경 이력 저장 방식
 - Firestore Rules 기반 cross-collection 수정/삭제 잠금
+- `userProgress` 존재 여부 확인을 위한 관리자 전용 Function 또는 날짜별 요약 문서
 - 관리자 앱의 상세 화면 디자인과 컴포넌트 구성
 - ElevenLabs female/male voice ID의 실제 값

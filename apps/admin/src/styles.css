@@ -40,6 +40,54 @@ button:disabled {
   min-height: 100vh;
 }
 
+.login-page,
+.loading-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+}
+
+.loading-page {
+  color: #4b5563;
+}
+
+.login-panel {
+  display: grid;
+  width: min(100%, 420px);
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.login-panel label {
+  display: grid;
+  gap: 7px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.login-copy,
+.security-note,
+.signed-in-user {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.error-message {
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff7f7;
+  color: #b91c1c;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -109,7 +157,8 @@ h4 {
 .panel-header,
 .action-bar,
 .audio-actions,
-.inline-status {
+.inline-status,
+.header-actions {
   display: flex;
   align-items: center;
 }
@@ -119,6 +168,20 @@ h4 {
 .action-bar {
   justify-content: space-between;
   gap: 16px;
+}
+
+.header-actions {
+  gap: 8px;
+}
+
+.notice-bar {
+  padding: 10px 12px;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .summary-grid {
@@ -355,6 +418,11 @@ textarea {
   .panel-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .summary-grid,

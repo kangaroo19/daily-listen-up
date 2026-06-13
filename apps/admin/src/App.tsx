@@ -1,3 +1,8 @@
+import { signOut } from 'firebase/auth';
+import { LoginScreen } from './components/LoginScreen';
+import { auth } from './config/firebase';
+import { useAuthState } from './hooks/useAuthState';
+
 const summaryItems = [
   { label: '오늘 문제', value: '미발행', tone: 'warning' },
   { label: '내일 문제', value: '준비 전', tone: 'neutral' },
@@ -16,6 +21,20 @@ const quizRows = [
 ];
 
 export function App() {
+  const authState = useAuthState();
+
+  if (authState.status === 'loading') {
+    return (
+      <main className="loading-page" aria-live="polite">
+        관리자 로그인 상태를 확인하고 있습니다.
+      </main>
+    );
+  }
+
+  if (authState.status === 'signed-out') {
+    return <LoginScreen />;
+  }
+
   return (
     <div className="admin-shell">
       <aside className="sidebar" aria-label="관리자 메뉴">
@@ -41,11 +60,21 @@ export function App() {
           <div>
             <p className="eyebrow">운영 대시보드</p>
             <h2>퀴즈 관리</h2>
+            <p className="signed-in-user">{authState.user.email}</p>
           </div>
-          <button className="primary-button" type="button">
-            새 퀴즈
-          </button>
+          <div className="header-actions">
+            <button className="secondary-button" onClick={() => signOut(auth)} type="button">
+              로그아웃
+            </button>
+            <button className="primary-button" type="button">
+              새 퀴즈
+            </button>
+          </div>
         </header>
+
+        <section className="notice-bar" role="status">
+          Firestore 또는 Storage 요청이 거부되면 관리자 UID allowlist를 확인하세요.
+        </section>
 
         <section className="summary-grid" aria-label="운영 요약">
           {summaryItems.map((item) => (

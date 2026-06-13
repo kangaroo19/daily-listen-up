@@ -2,6 +2,15 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
+    function isAdmin() {
+      // Replace this placeholder with the production admin UID during deployment.
+      return request.auth != null && request.auth.uid in ['REPLACE_WITH_ADMIN_UID'];
+    }
+
+    match /quiz-audio/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }

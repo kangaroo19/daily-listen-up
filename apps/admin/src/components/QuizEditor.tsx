@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { deleteQuizAudio, isMp3File, uploadQuizAudio } from '../services/audioStorage';
 import { quizExists, saveQuiz } from '../services/quizzes';
+import { generateTtsPreview, type SpeakerGender } from '../services/ttsPreview';
 import { createEmptyQuizForm, Quiz, QuizFormState, quizToFormState } from '../types/quiz';
 import {
   hasValidationErrors,
@@ -27,6 +28,10 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
   const [warningMessage, setWarningMessage] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState('');
+  const [speakerGender, setSpeakerGender] = useState<SpeakerGender>('female');
+  const [ttsPreviewBlob, setTtsPreviewBlob] = useState<Blob | null>(null);
+  const [ttsPreviewUrl, setTtsPreviewUrl] = useState('');
+  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -38,6 +43,7 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
       setWarningMessage('');
       setAudioFile(null);
       setAudioPreviewUrl('');
+      clearTtsPreview();
     }
   }, [selectedQuiz]);
 
@@ -49,6 +55,16 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     setWarningMessage('');
     setAudioFile(null);
     setAudioPreviewUrl('');
+    clearTtsPreview();
+  }
+
+  function clearTtsPreview() {
+    if (ttsPreviewUrl) {
+      URL.revokeObjectURL(ttsPreviewUrl);
+    }
+
+    setTtsPreviewBlob(null);
+    setTtsPreviewUrl('');
   }
 
   function handleAudioFileChange(file: File | undefined) {
@@ -74,6 +90,45 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
     setErrors((current) => ({ ...current, audioStoragePath: undefined }));
     setAudioFile(file);
     setAudioPreviewUrl(URL.createObjectURL(file));
+  }
+
+  async function handleGenerateTtsPreview() {
+    setWarningMessage('');
+    setErrors((current) => ({ ...current, script: undefined }));
+
+    if (!form.script.trim()) {
+      setErrors((current) => ({ ...current, script: 'TTS 미리듣기 전에 스크립트를 입력하세요.' }));
+      return;
+    }
+
+    setIsGeneratingTts(true);
+
+    try {
+      const blob = await generateTtsPreview(form.script, speakerGender);
+      clearTtsPreview();
+      setTtsPreviewBlob(blob);
+      setTtsPreviewUrl(URL.createObjectURL(blob));
+    } catch (error) {
+      setWarningMessage(error instanceof Error ? error.message : 'TTS 미리듣기 생성에 실패했습니다.');
+    } finally {
+      setIsGeneratingTts(false);
+    }
+  }
+
+  function useTtsPreviewAsAudio() {
+    if (!ttsPreviewBlob) {
+      return;
+    }
+
+    const file = new File([ttsPreviewBlob], `tts-preview-${form.quizDate || 'quiz'}.mp3`, { type: 'audio/mpeg' });
+    setAudioFile(file);
+
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
+    }
+
+    setAudioPreviewUrl(URL.createObjectURL(file));
+    setNotice('TTS 미리듣기를 최종 오디오 후보로 선택했습니다.');
   }
 
   function updateChoiceText(choiceId: string, text: string) {
@@ -248,6 +303,33 @@ export function QuizEditor({ onSaved, quizzes, selectedQuiz }: QuizEditorProps) 
 
       <section className="form-section">
         <h4>오디오</h4>
+        <label>
+          화자 성별
+          <select
+            onChange={(event) => setSpeakerGender(event.target.value as SpeakerGender)}
+            value={speakerGender}
+          >
+            <option value="female">여성</option>
+            <option value="male">남성</option>
+          </select>
+        </label>
+        <div className="audio-actions">
+          <button className="secondary-button" disabled={isGeneratingTts} onClick={handleGenerateTtsPreview} type="button">
+            {isGeneratingTts ? 'TTS 생성 중' : 'TTS 미리듣기'}
+          </button>
+          <button className="secondary-button" disabled={!ttsPreviewBlob} onClick={useTtsPreviewAsAudio} type="button">
+            이 음성 사용
+          </button>
+        </div>
+        {ttsPreviewUrl ? (
+          <div className="audio-preview">
+            <strong>TTS 미리듣기</strong>
+            <audio controls src={ttsPreviewUrl}>
+              <track kind="captions" />
+            </audio>
+          </div>
+        ) : null}
+
         <label>
           mp3 파일
           <input

@@ -6,6 +6,7 @@ import { handleLoginToss } from './loginToss.js';
 import { handleRewardedAdComplete } from './rewardedAdComplete.js';
 import { handleRewardStatus } from './rewardStatus.js';
 import { handleQuizAudio, handleTodayQuiz } from './todayQuiz.js';
+import { handleTtsPreview } from './ttsPreview.js';
 import { sendJson, setCorsHeaders } from './responses.js';
 
 type RouteHandler = (req: Request, res: Response) => void | Promise<void>;
@@ -18,6 +19,7 @@ const routes: Record<string, RouteHandler> = {
   'GET /api/reward-status': handleRewardStatus,
   'POST /api/answer-result': handleAnswerResult,
   'POST /api/rewarded-ad-complete': handleRewardedAdComplete,
+  'POST /api/admin/tts-preview': handleTtsPreview,
 };
 
 export async function routeApi(req: Request, res: Response): Promise<void> {

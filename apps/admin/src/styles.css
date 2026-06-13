@@ -235,6 +235,11 @@ h4 {
   color: #b91c1c;
 }
 
+.badge.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
 .workspace {
   display: grid;
   grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.4fr);
@@ -352,6 +357,43 @@ textarea {
 .preview-box {
   min-height: 100px;
   color: #6b7280;
+}
+
+.preview-script {
+  color: #374151;
+  line-height: 1.6;
+}
+
+.preview-choices {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 22px;
+  color: #374151;
+}
+
+.field-error,
+.panel-message,
+.notice-message {
+  font-size: 13px;
+}
+
+.field-error {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.panel-message {
+  color: #6b7280;
+}
+
+.notice-message {
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 700;
 }
 
 .primary-button,

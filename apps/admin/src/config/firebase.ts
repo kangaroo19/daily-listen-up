@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { Auth, getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -10,9 +11,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-export const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp);
+const missingConfigKeys = Object.entries(firebaseConfig)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+export const firebaseConfigError =
+  missingConfigKeys.length > 0 ? `Firebase 환경변수가 설정되지 않았습니다: ${missingConfigKeys.join(', ')}` : '';
+
+export const firebaseApp = firebaseConfigError ? null : initializeApp(firebaseConfig);
+export const auth: Auth | null = firebaseApp ? getAuth(firebaseApp) : null;
+export const db = firebaseApp ? getFirestore(firebaseApp) : null;
 
 export async function getAdminIdToken() {
-  return auth.currentUser?.getIdToken() ?? null;
+  return auth?.currentUser?.getIdToken() ?? null;
 }

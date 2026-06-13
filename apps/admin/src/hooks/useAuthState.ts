@@ -11,6 +11,11 @@ export function useAuthState(): AuthState {
   const [authState, setAuthState] = useState<AuthState>({ status: 'loading', user: null });
 
   useEffect(() => {
+    if (!auth) {
+      setAuthState({ status: 'signed-out', user: null });
+      return undefined;
+    }
+
     return onAuthStateChanged(auth, (user) => {
       setAuthState(user ? { status: 'signed-in', user } : { status: 'signed-out', user: null });
     });

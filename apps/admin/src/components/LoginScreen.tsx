@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { auth, firebaseConfigError } from '../config/firebase';
 
 function getLoginErrorMessage(error: unknown) {
   if (error instanceof FirebaseError) {
@@ -29,6 +29,11 @@ export function LoginScreen() {
     setIsSubmitting(true);
 
     try {
+      if (!auth) {
+        setErrorMessage(firebaseConfigError);
+        return;
+      }
+
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       setErrorMessage(getLoginErrorMessage(error));
@@ -69,9 +74,10 @@ export function LoginScreen() {
           />
         </label>
 
-        {errorMessage ? <p className="error-message" role="alert">{errorMessage}</p> : null}
+        {firebaseConfigError ? <p className="error-message" role="alert">{firebaseConfigError}</p> : null}
+        {errorMessage && !firebaseConfigError ? <p className="error-message" role="alert">{errorMessage}</p> : null}
 
-        <button className="primary-button" disabled={isSubmitting} type="submit">
+        <button className="primary-button" disabled={isSubmitting || Boolean(firebaseConfigError)} type="submit">
           {isSubmitting ? '로그인 중' : '로그인'}
         </button>
 

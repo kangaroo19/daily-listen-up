@@ -88,5 +88,80 @@
     ],
     "correctChoiceIds": ["choice-a", "choice-b"],
     "promotionAmount": 5
+  },
+  {
+    "id": "library-card-delay",
+    "audioFileName": "library-card-delay.mp3",
+    "speakerGender": "female",
+    "script": "Hi, this is Emma from the city library. I am calling about your new library card. You filled out the form yesterday, but one piece of information is missing. We need your apartment number before we can finish the card. You do not need to visit the library again today. Please call us before six this evening, or send the number by email. After we receive it, your card will be ready tomorrow afternoon. You can pick it up at the front desk. Please bring your photo ID when you come. Thank you.",
+    "choices": [
+      { "id": "choice-a", "text": "도서관 카드 신청서에 아파트 번호가 빠졌다." },
+      { "id": "choice-b", "text": "오늘 다시 도서관에 방문해야 한다." },
+      { "id": "choice-c", "text": "카드는 내일 오후에 준비될 예정이다." },
+      { "id": "choice-d", "text": "카드를 받으려면 학생증만 가져가면 된다." },
+      { "id": "choice-e", "text": "도서관은 오늘 저녁 8시까지 전화를 받는다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-c"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "shoe-repair-pickup",
+    "audioFileName": "shoe-repair-pickup.mp3",
+    "speakerGender": "male",
+    "script": "Hello, this is Daniel from Green Street Shoe Repair. I am calling about the brown boots you left with us on Monday. The new heel is finished, but we also found a small problem with the zipper on the left boot. We can fix it today for five dollars more. If you do not want the zipper fixed, the boots are ready now. Our shop closes at seven tonight. We are closed tomorrow morning, but we open again at two in the afternoon. Please call us and tell us what you would like to do.",
+    "choices": [
+      { "id": "choice-a", "text": "갈색 부츠의 새 굽 수리는 끝났다." },
+      { "id": "choice-b", "text": "오른쪽 부츠의 지퍼에 문제가 있다." },
+      { "id": "choice-c", "text": "지퍼 수리는 무료로 해 준다." },
+      { "id": "choice-d", "text": "가게는 오늘 밤 7시에 문을 닫는다." },
+      { "id": "choice-e", "text": "가게는 내일 아침 일찍 문을 연다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-d"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "market-wallet-counter",
+    "audioFileName": "market-wallet-counter.mp3",
+    "speakerGender": "female",
+    "script": "Excuse me, everyone. This is an announcement from Maple Market. A small black wallet was found near the fruit counter about ten minutes ago. It has a silver button on the front. There is no money inside, but there are two cards and a photo. If this wallet is yours, please come to the service desk near the main door. We will ask you to describe the photo before we return it. Please do not ask the cashiers about the wallet, because they are helping other customers. Thank you for listening.",
+    "choices": [
+      { "id": "choice-a", "text": "검은색 지갑이 과일 코너 근처에서 발견되었다." },
+      { "id": "choice-b", "text": "지갑 안에는 현금과 카드 세 장이 들어 있다." },
+      { "id": "choice-c", "text": "주인은 사진을 설명해야 지갑을 돌려받을 수 있다." },
+      { "id": "choice-d", "text": "지갑은 계산대 직원에게 맡겨져 있다." },
+      { "id": "choice-e", "text": "지갑 앞에는 금색 단추가 있다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-c"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "dentist-time-change",
+    "audioFileName": "dentist-time-change.mp3",
+    "speakerGender": "male",
+    "script": "Hi, this message is for Sarah Kim. This is Bright Dental Clinic. Your cleaning appointment is still on Friday, but the time has changed. The dentist has an emergency meeting at three, so we moved your appointment from three thirty to four fifteen. If four fifteen is not good for you, we can also see you next Tuesday morning at ten. Please call us before noon tomorrow to confirm. You do not need to bring any forms, because we already have your information. Please arrive ten minutes early if you keep the Friday appointment.",
+    "choices": [
+      { "id": "choice-a", "text": "금요일 치과 예약 시간이 4시 15분으로 바뀌었다." },
+      { "id": "choice-b", "text": "예약은 금요일에서 목요일로 변경되었다." },
+      { "id": "choice-c", "text": "금요일 예약을 유지하면 10분 일찍 도착해야 한다." },
+      { "id": "choice-d", "text": "새 환자 서류를 반드시 가져가야 한다." },
+      { "id": "choice-e", "text": "내일 오후 5시까지 확인 전화를 해야 한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-c"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "bookstore-order-arrival",
+    "audioFileName": "bookstore-order-arrival.mp3",
+    "speakerGender": "female",
+    "script": "Hello, this is Nina from Corner Bookstore. I am calling about the travel book you ordered last week. Good news, it arrived this morning. We will keep it behind the counter for three days. The price is twelve dollars, the same as we told you before. Please bring the order paper or show this message on your phone when you come. The blue notebook you asked about is not here yet. It should arrive later this week. Our store is open until eight tonight.",
+    "choices": [
+      { "id": "choice-a", "text": "주문한 여행 책이 오늘 아침 도착했다." },
+      { "id": "choice-b", "text": "서점은 책을 일주일 동안 보관해 준다." },
+      { "id": "choice-c", "text": "책 가격은 이전에 안내한 것보다 올랐다." },
+      { "id": "choice-d", "text": "파란 공책은 아직 도착하지 않았다." },
+      { "id": "choice-e", "text": "서점은 오늘 저녁 6시에 문을 닫는다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-d"],
+    "promotionAmount": 5
   }
 ]

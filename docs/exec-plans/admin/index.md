@@ -82,6 +82,8 @@
    - ElevenLabs TTS 미리듣기 Function과 blob 재생/선택 흐름
 4. 4차 묶음: 06
    - 발행, 발행 해제, 삭제, 진행 기록 기반 수정 제한, 최종 검증
+5. 5차 묶음: 07
+   - JSON 기반 mp3 퀴즈 등록, ElevenLabs TTS 제거
 
 ## 전체 작업 목록
 
@@ -97,3 +99,5 @@
    - 파일명: `active/05-admin-tts-preview.md`
 6. 발행, 삭제, 진행 기록 기반 운영 정책 구현
    - 파일명: `active/06-admin-publish-delete-progress-policy.md`
+7. JSON 기반 mp3 퀴즈 등록과 ElevenLabs TTS 제거
+   - 파일명: `active/07-admin-json-mp3-import-remove-tts.md`

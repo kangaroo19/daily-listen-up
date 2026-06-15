@@ -51,7 +51,7 @@ export function AdminDashboard({ email }: AdminDashboardProps) {
             퀴즈 관리
           </a>
           <a className="nav-item" href="#audio">
-            오디오/TTS
+            오디오
           </a>
           <a className="nav-item" href="#settings">
             설정

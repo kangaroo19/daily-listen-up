@@ -157,6 +157,7 @@ h4 {
 .panel-header,
 .action-bar,
 .audio-actions,
+.input-mode-toggle,
 .inline-status,
 .header-actions {
   display: flex;
@@ -338,9 +339,15 @@ textarea {
 }
 
 .inline-status,
-.audio-actions {
+.audio-actions,
+.input-mode-toggle {
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.json-import-panel {
+  display: grid;
+  gap: 12px;
 }
 
 .choice-row {

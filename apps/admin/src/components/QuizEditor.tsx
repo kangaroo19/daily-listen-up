@@ -1,8 +1,8 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { deleteQuizAudio, isMp3File, uploadQuizAudio } from '../services/audioStorage';
 import { deleteQuizDocument, quizExists, saveQuiz, updateQuizPublication } from '../services/quizzes';
-import { generateTtsPreview, type SpeakerGender } from '../services/ttsPreview';
 import { createEmptyQuizForm, Quiz, QuizFormState, quizToFormState } from '../types/quiz';
+import { parseJsonQuizImport } from '../validation/jsonQuizImport';
 import {
   hasValidationErrors,
   toQuizPayload,
@@ -30,10 +30,10 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
   const [warningMessage, setWarningMessage] = useState('');
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [audioPreviewUrl, setAudioPreviewUrl] = useState('');
-  const [speakerGender, setSpeakerGender] = useState<SpeakerGender>('female');
-  const [ttsPreviewBlob, setTtsPreviewBlob] = useState<Blob | null>(null);
-  const [ttsPreviewUrl, setTtsPreviewUrl] = useState('');
-  const [isGeneratingTts, setIsGeneratingTts] = useState(false);
+  const [inputMode, setInputMode] = useState<'manual' | 'json'>('manual');
+  const [jsonText, setJsonText] = useState('');
+  const [jsonAudioFile, setJsonAudioFile] = useState<File | null>(null);
+  const [jsonImportError, setJsonImportError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,8 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
       setWarningMessage('');
       setAudioFile(null);
       setAudioPreviewUrl('');
-      clearTtsPreview();
+      setJsonImportError('');
+      setJsonAudioFile(null);
     }
   }, [selectedQuiz]);
 
@@ -57,16 +58,10 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
     setWarningMessage('');
     setAudioFile(null);
     setAudioPreviewUrl('');
-    clearTtsPreview();
-  }
-
-  function clearTtsPreview() {
-    if (ttsPreviewUrl) {
-      URL.revokeObjectURL(ttsPreviewUrl);
-    }
-
-    setTtsPreviewBlob(null);
-    setTtsPreviewUrl('');
+    setInputMode('manual');
+    setJsonText('');
+    setJsonAudioFile(null);
+    setJsonImportError('');
   }
 
   function handleAudioFileChange(file: File | undefined) {
@@ -77,14 +72,26 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
       return;
     }
 
+    if (!file) {
+      clearAudioFile();
+      return;
+    }
+
+    applyAudioFile(file);
+  }
+
+  function clearAudioFile() {
     if (audioPreviewUrl) {
       URL.revokeObjectURL(audioPreviewUrl);
     }
 
-    if (!file) {
-      setAudioFile(null);
-      setAudioPreviewUrl('');
-      return;
+    setAudioFile(null);
+    setAudioPreviewUrl('');
+  }
+
+  function applyAudioFile(file: File) {
+    if (audioPreviewUrl) {
+      URL.revokeObjectURL(audioPreviewUrl);
     }
 
     if (!isMp3File(file)) {
@@ -99,43 +106,49 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
     setAudioPreviewUrl(URL.createObjectURL(file));
   }
 
-  async function handleGenerateTtsPreview() {
-    setWarningMessage('');
-    setErrors((current) => ({ ...current, script: undefined }));
+  function handleJsonAudioFileChange(file: File | undefined) {
+    setJsonImportError('');
 
-    if (!form.script.trim()) {
-      setErrors((current) => ({ ...current, script: 'TTS 미리듣기 전에 스크립트를 입력하세요.' }));
+    if (hasProgress) {
+      setJsonImportError('진행 기록이 있는 퀴즈는 JSON 가져오기와 오디오 교체를 할 수 없습니다.');
       return;
     }
 
-    setIsGeneratingTts(true);
-
-    try {
-      const blob = await generateTtsPreview(form.script, speakerGender);
-      clearTtsPreview();
-      setTtsPreviewBlob(blob);
-      setTtsPreviewUrl(URL.createObjectURL(blob));
-    } catch (error) {
-      setWarningMessage(error instanceof Error ? error.message : 'TTS 미리듣기 생성에 실패했습니다.');
-    } finally {
-      setIsGeneratingTts(false);
+    if (!file) {
+      setJsonAudioFile(null);
+      return;
     }
+
+    if (!isMp3File(file)) {
+      setJsonAudioFile(null);
+      setJsonImportError('mp3 파일만 선택할 수 있습니다.');
+      return;
+    }
+
+    setJsonAudioFile(file);
   }
 
-  function useTtsPreviewAsAudio() {
-    if (!ttsPreviewBlob) {
+  function handleImportJson() {
+    setNotice('');
+    setJsonImportError('');
+
+    if (hasProgress) {
+      setJsonImportError('진행 기록이 있는 퀴즈는 JSON 가져오기와 오디오 교체를 할 수 없습니다.');
       return;
     }
 
-    const file = new File([ttsPreviewBlob], `tts-preview-${form.quizDate || 'quiz'}.mp3`, { type: 'audio/mpeg' });
-    setAudioFile(file);
+    const result = parseJsonQuizImport(jsonText, jsonAudioFile?.name ?? '');
 
-    if (audioPreviewUrl) {
-      URL.revokeObjectURL(audioPreviewUrl);
+    if (!result.ok) {
+      setJsonImportError(result.error);
+      return;
     }
 
-    setAudioPreviewUrl(URL.createObjectURL(file));
-    setNotice('TTS 미리듣기를 최종 오디오 후보로 선택했습니다.');
+    setForm(result.form);
+    setErrors({});
+    applyAudioFile(jsonAudioFile as File);
+    setMode('new');
+    setNotice('JSON 내용을 기존 퀴즈 폼에 반영했습니다. 확인 후 미발행 저장하세요.');
   }
 
   function updateChoiceText(choiceId: string, text: string) {
@@ -234,6 +247,7 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
       setMode('edit');
       setAudioFile(null);
       setAudioPreviewUrl('');
+      setJsonAudioFile(null);
     } catch (error) {
       setErrors({
         form: error instanceof Error ? error.message : '퀴즈 저장에 실패했습니다.',
@@ -328,6 +342,54 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
       {errors.form ? <p className="error-message" role="alert">{errors.form}</p> : null}
 
       <section className="form-section">
+        <h4>입력 방식</h4>
+        <div className="input-mode-toggle" role="group" aria-label="퀴즈 입력 방식">
+          <button
+            className={inputMode === 'manual' ? 'primary-button' : 'secondary-button'}
+            onClick={() => setInputMode('manual')}
+            type="button"
+          >
+            수동 입력
+          </button>
+          <button
+            className={inputMode === 'json' ? 'primary-button' : 'secondary-button'}
+            onClick={() => setInputMode('json')}
+            type="button"
+          >
+            JSON 입력
+          </button>
+        </div>
+        {inputMode === 'json' ? (
+          <div className="json-import-panel">
+            <label>
+              quizPool.json 단일 객체
+              <textarea
+                disabled={hasProgress}
+                onChange={(event) => setJsonText(event.target.value)}
+                placeholder='{"quizDate":"2026-06-14","audioFileName":"example.mp3",...}'
+                rows={10}
+                value={jsonText}
+              />
+            </label>
+            <label>
+              JSON에 연결할 mp3 파일
+              <input
+                accept="audio/mpeg,.mp3"
+                disabled={hasProgress}
+                onChange={(event) => handleJsonAudioFileChange(event.target.files?.[0])}
+                type="file"
+              />
+            </label>
+            {jsonAudioFile ? <p className="panel-message">선택한 파일: {jsonAudioFile.name}</p> : null}
+            {jsonImportError ? <p className="field-error">{jsonImportError}</p> : null}
+            <button className="secondary-button" disabled={hasProgress} onClick={handleImportJson} type="button">
+              JSON 가져오기
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <section className="form-section">
         <h4>기본 정보</h4>
         <label>
           퀴즈 날짜
@@ -404,33 +466,6 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
 
       <section className="form-section">
         <h4>오디오</h4>
-        <label>
-          화자 성별
-          <select
-            onChange={(event) => setSpeakerGender(event.target.value as SpeakerGender)}
-            value={speakerGender}
-          >
-            <option value="female">여성</option>
-            <option value="male">남성</option>
-          </select>
-        </label>
-        <div className="audio-actions">
-          <button className="secondary-button" disabled={hasProgress || isGeneratingTts} onClick={handleGenerateTtsPreview} type="button">
-            {isGeneratingTts ? 'TTS 생성 중' : 'TTS 미리듣기'}
-          </button>
-          <button className="secondary-button" disabled={hasProgress || !ttsPreviewBlob} onClick={useTtsPreviewAsAudio} type="button">
-            이 음성 사용
-          </button>
-        </div>
-        {ttsPreviewUrl ? (
-          <div className="audio-preview">
-            <strong>TTS 미리듣기</strong>
-            <audio controls src={ttsPreviewUrl}>
-              <track kind="captions" />
-            </audio>
-          </div>
-        ) : null}
-
         <label>
           mp3 파일
           <input

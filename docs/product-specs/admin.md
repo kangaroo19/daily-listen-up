@@ -11,8 +11,8 @@
 - 관리자 앱은 저장소 내부의 `apps/admin` 디렉토리에 독립 React/Vite 앱으로 만든다.
 - 기존 Toss 미니앱의 `src/` 내부에는 관리자 화면을 넣지 않는다.
 - 관리자 앱의 퀴즈 CRUD와 오디오 업로드는 Firebase Client SDK만 사용한다.
-- ElevenLabs TTS 미리듣기 생성은 API 키 보호를 위해 최소 Firebase Function을 사용하는 예외로 둔다.
-- TTS Function은 음성 미리듣기 생성만 담당하고, 퀴즈 등록, 수정, 삭제, 발행 API로 확장하지 않는다.
+- 관리자 v1에서는 외부 TTS API를 호출하지 않고 운영자가 준비한 mp3 파일만 업로드한다.
+- `quizPool.json` 단일 객체와 일치하는 mp3 파일을 가져와 기존 퀴즈 폼과 저장 흐름으로 등록할 수 있게 한다.
 - 관리자 앱은 GitHub Pages 같은 정적 호스팅으로 배포할 수 있어야 한다.
 - 기존 사용자 앱은 계속 Firebase Functions API를 통해 문제를 조회하고 답안을 제출한다.
 
@@ -39,8 +39,7 @@
 - 퀴즈 삭제
 - 미발행 저장된 퀴즈 발행
 - 퀴즈 상세 미리보기
-- 스크립트 기반 TTS 미리듣기 생성
-- 생성된 TTS 음성을 최종 오디오로 선택
+- `quizPool.json` 단일 객체 기반 퀴즈 폼 가져오기
 - mp3 오디오 파일 업로드
 
 새 퀴즈는 기본적으로 `isPublished = false` 상태로 저장한다.
@@ -49,13 +48,13 @@
 
 오디오는 아래 흐름으로 준비한다.
 
-1. 스크립트와 화자 성별을 기준으로 ElevenLabs TTS 미리듣기를 생성한다.
-2. TTS Function은 생성된 mp3를 `audio/mpeg` blob 응답으로 반환하고, Firestore 또는 Storage에 저장하지 않는다.
-3. 생성된 음성을 확인한 뒤 `이 음성 사용`을 눌러 최종 업로드 대상으로 지정한다.
-4. 또는 운영자가 직접 준비한 mp3 파일을 파일 input으로 선택한다.
+1. 운영자가 최종 mp3 파일을 직접 준비한다.
+2. 수동 입력 시 파일 input으로 mp3 파일을 선택한다.
+3. JSON 입력 시 `quizPool.json` 단일 객체에 `quizDate`를 추가해 붙여넣고, JSON의 `audioFileName`과 같은 이름의 mp3 파일을 선택한다.
+4. JSON 가져오기는 Firestore 또는 Storage에 즉시 저장하지 않고 기존 퀴즈 폼과 최종 오디오 후보만 채운다.
 5. 퀴즈를 저장할 때 선택된 최종 오디오를 Firebase Storage에 업로드하고 `audioStoragePath`를 Firestore에 저장한다.
 
-TTS 미리듣기 생성 실패는 퀴즈 저장 흐름 전체를 막지 않는다. 운영자는 직접 mp3 업로드로 대체할 수 있다.
+mp3 파일 자동 생성과 외부 TTS API 호출은 관리자 v1 범위에 포함하지 않는다.
 
 기존 퀴즈의 오디오를 교체할 때는 새 오디오 업로드와 Firestore `audioStoragePath` 저장이 모두 성공한 뒤 기존 Storage 오디오 파일 삭제를 시도한다.
 기존 오디오 파일 삭제 실패는 퀴즈 저장 실패로 보지 않고 운영 정리 대상으로 남긴다.
@@ -140,9 +139,8 @@ quiz-audio/{quizDate}/{fileName}
 - 일반 앱 사용자는 기존 서버 API를 통해서만 오늘 문제를 조회한다.
 - 정답, 스크립트, 포인트 금액, 원본 Storage 경로는 일반 앱의 공개 응답에 포함하지 않는다.
 - 토스 로그인, 정답 검증, 포인트 지급, 중복 지급 방지는 기존 Firebase Functions 서버 책임으로 유지한다.
-- ElevenLabs API 키는 관리자 앱의 React 코드, 환경변수, 빌드 산출물에 포함하지 않는다.
-- ElevenLabs API 키와 성별별 voice ID는 Firebase Function의 Secret 또는 서버 전용 환경변수로 관리한다.
-- 관리자 앱은 Firebase Auth ID token과 함께 스크립트, 화자 성별만 TTS Function에 전달한다.
+- 외부 TTS API 키와 voice ID는 관리자 앱의 React 코드, 환경변수, 빌드 산출물에 포함하지 않는다.
+- 관리자 앱은 오디오 생성을 위한 외부 TTS Function을 호출하지 않는다.
 
 ## 배포 기준
 
@@ -160,4 +158,4 @@ quiz-audio/{quizDate}/{fileName}
 - Firestore Rules 기반 cross-collection 수정/삭제 잠금
 - `userProgress` 존재 여부 확인을 위한 관리자 전용 Function 또는 날짜별 요약 문서
 - 관리자 앱의 상세 화면 디자인과 컴포넌트 구성
-- ElevenLabs female/male voice ID의 실제 값
+- 외부 TTS 도구와 음성 생성 운영 방식

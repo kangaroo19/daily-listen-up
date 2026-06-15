@@ -5,8 +5,8 @@
 - 관리자 앱은 `apps/admin`에 독립 React/Vite 앱으로 만든다.
 - 기존 Toss 미니앱 `src/` 내부에는 관리자 화면을 넣지 않는다.
 - 관리자 앱의 퀴즈 CRUD와 최종 mp3 업로드는 Firebase Client SDK로 처리한다.
-- ElevenLabs TTS 미리듣기 생성만 API 키 보호를 위해 최소 Firebase Function 예외로 구현한다.
-- TTS Function은 미리듣기 mp3 생성만 담당하고, Firestore/Storage 저장이나 퀴즈 CRUD API로 확장하지 않는다.
+- 관리자 v1에서는 외부 TTS API를 호출하지 않고 운영자가 준비한 mp3 파일만 업로드한다.
+- `quizPool.json` 단일 객체와 일치하는 mp3 파일을 가져와 기존 퀴즈 폼과 저장 흐름으로 등록할 수 있게 한다.
 - 새 퀴즈는 완성된 문제를 `isPublished = false` 상태로 미발행 저장하고, 별도 발행 액션 후 사용자 앱에 노출한다.
 - 진행 기록이 있는 퀴즈는 판정과 보상에 영향 있는 필드를 잠그고, 오탈자 정정과 발행 해제만 제한적으로 허용한다.
 - 발행 해제는 긴급 중단 액션이며, 기존 진행자의 재도전과 스크립트 열람도 막는다.
@@ -23,7 +23,7 @@
 ## 관리자 앱 범위
 
 관리자 v1은 문제 콘텐츠 운영을 위한 별도 정적 웹앱을 기준으로 구현한다.
-퀴즈 목록, 상세, 등록, 수정, 삭제, 미발행 저장, 발행, 발행 해제, 미리보기, mp3 업로드, TTS 미리듣기 생성을 포함한다.
+퀴즈 목록, 상세, 등록, 수정, 삭제, 미발행 저장, 발행, 발행 해제, 미리보기, mp3 업로드, JSON 기반 mp3 퀴즈 등록을 포함한다.
 
 세부 UI 디자인, 문구, 컴포넌트 기준은 각 `active` 작업지시서와 `docs/design-docs/style-guidelines.md`, `docs/design-docs/admin-dashboard-ui.md`에서 다룬다.
 
@@ -79,7 +79,7 @@
 2. 2차 묶음: 03~04
    - 퀴즈 CRUD 편집기, 직접 mp3 업로드와 Storage 저장
 3. 3차 묶음: 05
-   - ElevenLabs TTS 미리듣기 Function과 blob 재생/선택 흐름
+   - 음성 미리듣기 흐름 구현 이력. 07번 이후 관리자 v1 기준에서는 제거됨
 4. 4차 묶음: 06
    - 발행, 발행 해제, 삭제, 진행 기록 기반 수정 제한, 최종 검증
 5. 5차 묶음: 07
@@ -95,7 +95,7 @@
    - 파일명: `active/03-admin-quiz-crud-editor.md`
 4. 관리자 오디오 업로드와 Storage 저장 구현
    - 파일명: `active/04-admin-audio-storage.md`
-5. ElevenLabs TTS 미리듣기 구현
+5. 음성 미리듣기 구현 이력
    - 파일명: `active/05-admin-tts-preview.md`
 6. 발행, 삭제, 진행 기록 기반 운영 정책 구현
    - 파일명: `active/06-admin-publish-delete-progress-policy.md`

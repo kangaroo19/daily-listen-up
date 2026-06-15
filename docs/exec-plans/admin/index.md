@@ -84,6 +84,8 @@
    - 발행, 발행 해제, 삭제, 진행 기록 기반 수정 제한, 최종 검증
 5. 5차 묶음: 07
    - JSON 기반 mp3 퀴즈 등록, ElevenLabs TTS 제거
+6. 6차 묶음: 08
+   - 관리자 앱 GitHub Pages 수동 배포 설정
 
 ## 전체 작업 목록
 
@@ -101,3 +103,5 @@
    - 파일명: `active/06-admin-publish-delete-progress-policy.md`
 7. JSON 기반 mp3 퀴즈 등록과 ElevenLabs TTS 제거
    - 파일명: `active/07-admin-json-mp3-import-remove-tts.md`
+8. 관리자 앱 GitHub Pages 수동 배포 설정
+   - 파일명: `active/08-admin-github-pages-deploy.md`

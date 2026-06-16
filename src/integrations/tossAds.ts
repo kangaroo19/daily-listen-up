@@ -11,13 +11,22 @@ export async function showTossAd(purpose: TossAdPurpose): Promise<void> {
     return;
   }
 
-  const adGroupId =
-    purpose === "answer-result"
-      ? clientEnv.tossInterstitialAdGroupId || "ait-ad-test-interstitial-id"
-      : clientEnv.tossRewardedAdGroupId || "ait-ad-test-rewarded-id";
+  const adGroupId = getAdGroupId(purpose);
 
   await loadFullScreenTossAd(adGroupId);
   await showFullScreenTossAd(adGroupId, purpose);
+}
+
+function getAdGroupId(purpose: TossAdPurpose): string {
+  if (purpose === "answer-result") {
+    return clientEnv.tossInterstitialAdGroupId || "ait-ad-test-interstitial-id";
+  }
+
+  if (purpose === "retry") {
+    return clientEnv.tossRetryRewardedAdGroupId || "ait-ad-test-rewarded-id";
+  }
+
+  return clientEnv.tossScriptRewardedAdGroupId || "ait-ad-test-rewarded-id";
 }
 
 function loadFullScreenTossAd(adGroupId: string): Promise<void> {

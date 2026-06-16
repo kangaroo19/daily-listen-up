@@ -2,7 +2,8 @@ export const clientEnv = {
   apiBaseUrl: import.meta.env.VITE_APP_API_BASE_URL,
   tossAppName: import.meta.env.VITE_TOSS_APP_NAME,
   tossInterstitialAdGroupId: import.meta.env.VITE_TOSS_INTERSTITIAL_AD_GROUP_ID,
-  tossRewardedAdGroupId: import.meta.env.VITE_TOSS_REWARDED_AD_GROUP_ID,
+  tossRetryRewardedAdGroupId: import.meta.env.VITE_TOSS_RETRY_REWARDED_AD_GROUP_ID,
+  tossScriptRewardedAdGroupId: import.meta.env.VITE_TOSS_SCRIPT_REWARDED_AD_GROUP_ID,
   tossBannerAdGroupId: import.meta.env.VITE_TOSS_BANNER_AD_GROUP_ID,
   skipAnswerResultInterstitial: import.meta.env.VITE_SKIP_ANSWER_RESULT_INTERSTITIAL === 'true',
   firebase: {

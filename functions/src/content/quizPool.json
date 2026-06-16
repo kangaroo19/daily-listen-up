@@ -163,5 +163,37 @@
     ],
     "correctChoiceIds": ["choice-a", "choice-d"],
     "promotionAmount": 5
+  },
+  {
+    "id": "office-charger-left-behind",
+    "quizDate": "2026-06-20",
+    "audioFileName": "office-charger-left-behind.mp3",
+    "speakerGender": "female",
+    "script": "Hi, Mark. This is Jisoo from the office. I think I left my phone charger in the small meeting room after lunch. It is white, with a blue sticker near the plug. I used it during our design meeting, and then I put it next to the window because the table was full. When I came back from the coffee shop, another team was already using the room, so I could not check. If you are still at the office, could you look for it before you leave? I need it tonight because my phone battery is low. If you find it, please put it in my desk drawer, not at the front desk.",
+    "choices": [
+      { "id": "choice-a", "text": "지수는 점심 후 작은 회의실에 휴대폰 충전기를 두고 온 것 같다." },
+      { "id": "choice-b", "text": "충전기는 흰색이고 플러그 근처에 파란 스티커가 있다." },
+      { "id": "choice-c", "text": "지수는 충전기를 커피숍 창가 자리에 두고 왔다." },
+      { "id": "choice-d", "text": "마크는 충전기를 찾으면 안내 데스크에 맡겨야 한다." },
+      { "id": "choice-e", "text": "지수는 다른 팀이 회의실을 쓰기 전에 직접 확인했다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
+  },
+  {
+    "id": "pharmacy-prescription-delay",
+    "quizDate": "2026-06-16",
+    "audioFileName": "pharmacy-prescription-delay.mp3",
+    "speakerGender": "female",
+    "script": "Hello, this is Grace from Sunny Pharmacy. I am calling about your medicine order. You asked us to prepare it for pickup this afternoon, but one item is not ready yet. The allergy tablets arrived this morning, so you can pick them up today. However, the cough syrup will arrive tomorrow after lunch. I am sorry for the delay. If you only need the tablets, please come before seven tonight. If you want to pick up both items together, tomorrow after two is better. Please bring your health card when you come. You do not need to call again unless you want us to cancel the cough syrup.",
+    "choices": [
+      { "id": "choice-a", "text": "알레르기 알약은 오늘 받을 수 있다." },
+      { "id": "choice-b", "text": "기침 시럽은 내일 점심 이후에 도착할 예정이다." },
+      { "id": "choice-c", "text": "두 약 모두 오늘 아침에 준비가 끝났다." },
+      { "id": "choice-d", "text": "알레르기 알약만 필요해도 내일까지 기다려야 한다." },
+      { "id": "choice-e", "text": "약을 받으러 갈 때 여권을 가져가야 한다." }
+    ],
+    "correctChoiceIds": ["choice-a", "choice-b"],
+    "promotionAmount": 5
   }
 ]

@@ -4,7 +4,7 @@
 
 이 문서는 듣기 문제 원본을 저장소 안에서 관리하거나 관리자 앱에서 작성하고, 오디오 파일과 함께 실제 Firebase 프로젝트의 Firestore와 Storage에 적재하는 기준을 정리한다.
 
-저장소 기반 운영에서는 문제 원본을 날짜와 분리해 문제 단위로 보관한다. 관리자 앱 기반 운영에서는 날짜별 운영 문제를 직접 작성한다. 두 흐름 모두 최종 저장 결과는 `quizzes/{quizDate}` 문서와 `quiz-audio/{quizDate}/...` Storage 객체다.
+저장소 기반 운영에서는 문제 원본을 날짜와 함께 문제 단위로 보관한다. 관리자 앱 기반 운영에서도 날짜별 운영 문제를 직접 작성한다. 두 흐름 모두 최종 저장 결과는 `quizzes/{quizDate}` 문서와 `quiz-audio/{quizDate}/...` Storage 객체다.
 
 ## 원본 보관 위치
 
@@ -23,7 +23,7 @@ functions/src/content/
     wrong-salad-delivery.mp3
 ```
 
-`quizPool.json`은 날짜가 없는 문제 풀이다. 같은 문제를 특정 날짜에 배정하는 책임은 seed 스크립트가 가진다.
+`quizPool.json`은 날짜가 포함된 문제 풀이다. 각 문제는 `quizDate`로 실제 운영 날짜를 가진다.
 
 ## 문제 데이터 형식
 
@@ -32,6 +32,7 @@ functions/src/content/
 ```json
 {
   "id": "morning-video-meeting",
+  "quizDate": "2026-06-08",
   "audioFileName": "morning-video-meeting.mp3",
   "speakerGender": "female",
   "script": "This morning, I tried to look professional before an important video meeting...",
@@ -50,6 +51,7 @@ functions/src/content/
 필드 기준:
 
 - `id`: 문제 풀 안에서 문제를 식별하는 고유 ID
+- `quizDate`: 문제를 운영할 KST 날짜. 형식은 `yyyy-mm-dd`를 사용한다.
 - `audioFileName`: `functions/src/content/audio/` 아래에 있는 mp3 파일명
 - `speakerGender`: 원본 제작 단계에서 참고할 수 있는 화자 성별 메타데이터. 값은 `female` 또는 `male`만 사용한다.
 - `script`: 광고 보상 후 열람 가능한 영어 듣기 스크립트
@@ -110,7 +112,7 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 }
 ```
 
-`quizPool.json`은 운영 전 원본이고, Firestore `quizzes/{quizDate}`는 앱이 해당 날짜에 사용하는 운영 데이터다.
+`quizPool.json`은 운영 전 원본이고, Firestore `quizzes/{quizDate}`는 앱이 해당 날짜에 사용하는 운영 데이터다. 두 데이터 모두 같은 `quizDate` 값을 가진다.
 
 ## 운영 흐름
 
@@ -129,7 +131,7 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 
 1. 관리자 앱에서 수동 입력 또는 JSON 입력 모드를 선택한다.
 2. 수동 입력 시 날짜, 스크립트, 5개 선택지, 복수 정답, 포인트 금액을 입력하고 직접 준비한 mp3 파일을 선택한다.
-3. JSON 입력 시 `quizPool.json` 단일 객체에 `quizDate`를 추가해 붙여넣고, JSON의 `audioFileName`과 이름이 같은 mp3 파일을 선택한다.
+3. JSON 입력 시 `quizPool.json` 단일 객체를 붙여넣고, JSON의 `audioFileName`과 이름이 같은 mp3 파일을 선택한다.
 4. `JSON 가져오기`는 기존 퀴즈 폼과 최종 오디오 후보를 채우며, Firestore 또는 Storage에 즉시 저장하지 않는다.
 5. 퀴즈를 저장하면 관리자 앱이 최종 오디오를 `quiz-audio/{quizDate}/` 아래에 업로드하고 `quizzes/{quizDate}` 문서를 저장한다.
 6. 미발행 상태로 확인한 뒤 필요할 때 발행한다.
@@ -139,7 +141,8 @@ Firestore 문서에는 날짜가 붙은 운영 데이터가 저장된다.
 
 ## 검증 기준
 
-- 문제 원본에는 날짜가 없어야 한다.
+- 문제 원본에는 `quizDate`가 있어야 한다.
+- `quizDate`는 `yyyy-mm-dd` 형식이어야 한다.
 - 스크립트는 음성 기준 45초~1분 분량이어야 한다.
 - `speakerGender`는 `female` 또는 `male`이어야 한다.
 - JSON 입력 모드는 `speakerGender`를 허용하되 운영 Firestore 문서에는 저장하지 않아야 한다.

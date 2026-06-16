@@ -147,6 +147,11 @@ quiz-audio/{quizDate}/{fileName}
 - 관리자 앱은 `apps/admin` 기준으로 빌드한다.
 - 관리자 앱 전용 Firebase 환경변수는 `apps/admin/.env.example`에 문서화한다.
 - GitHub Pages에 배포할 수 있도록 Vite 정적 빌드 산출물을 사용한다.
+- 관리자 앱 GitHub Pages 배포는 `gh-pages` 브랜치 수동 배포 방식을 사용한다.
+- Pages 빌드는 루트에서 `npm run admin:pages:build`로 실행하며, Vite base 경로는 `/daily-listen-up/admin/`를 사용한다.
+- Pages 배포는 루트에서 `npm run admin:pages:deploy`로 실행하며, `apps/admin/dist` 산출물을 `gh-pages` 브랜치의 `admin/` 하위경로에 배포한다.
+- 관리자 앱 Pages URL 기준은 `https://kangaroo19.github.io/daily-listen-up/admin/`이다.
+- GitHub Pages Source는 `Deploy from a branch`, Branch는 `gh-pages`, Folder는 `/ (root)`를 사용한다.
 - GitHub Pages 도메인은 Firebase Auth 승인된 도메인에 등록한다.
 - 저장소의 기존 Toss 미니앱 배포 방식과 관리자 앱 배포 방식은 분리한다.
 

@@ -15,7 +15,9 @@
     "firebase:verify-login-session": "npm --prefix functions run verify:login-session",
     "firebase:verify-home-entry": "npm --prefix functions run verify:home-entry",
     "firebase:verify-today-quiz": "npm --prefix functions run verify:today-quiz",
-    "firebase:verify-answer-result": "npm --prefix functions run verify:answer-result"
+    "firebase:verify-answer-result": "npm --prefix functions run verify:answer-result",
+    "admin:pages:build": "npm --prefix apps/admin run build -- --base=/daily-listen-up/admin/",
+    "admin:pages:deploy": "gh-pages -d apps/admin/dist -b gh-pages --dest admin"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "latest",
@@ -30,6 +32,7 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",
+    "gh-pages": "^6.3.0",
     "typescript": "latest",
     "vite": "latest"
   }

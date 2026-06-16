@@ -105,6 +105,16 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
     );
   }
 
+  function stopAudioPlayback() {
+    const audio = audioRef.current;
+
+    if (audio != null && !audio.paused) {
+      audio.pause();
+    }
+
+    setIsAudioPlaying(false);
+  }
+
   async function handleSubmitAnswer() {
     const appSessionToken = getAppSessionToken();
 
@@ -112,6 +122,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
       return;
     }
 
+    stopAudioPlayback();
     setIsSubmitting(true);
 
     try {

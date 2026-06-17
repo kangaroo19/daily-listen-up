@@ -5,7 +5,7 @@ export default defineConfig({
   brand: {
     displayName: "오늘의 리스닝",
     primaryColor: "#3182F6",
-    icon: "",
+    icon: "https://static.toss.im/appsintoss/31257/40536143-4fab-4918-b05c-9b8d076b1299.png",
   },
   web: {
     host: "localhost",

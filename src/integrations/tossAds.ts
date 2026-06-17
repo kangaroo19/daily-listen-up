@@ -19,14 +19,14 @@ export async function showTossAd(purpose: TossAdPurpose): Promise<void> {
 
 function getAdGroupId(purpose: TossAdPurpose): string {
   if (purpose === "answer-result") {
-    return clientEnv.tossInterstitialAdGroupId || "ait-ad-test-interstitial-id";
+    return clientEnv.tossInterstitialAdGroupId;
   }
 
   if (purpose === "retry") {
-    return clientEnv.tossRetryRewardedAdGroupId || "ait-ad-test-rewarded-id";
+    return clientEnv.tossRetryRewardedAdGroupId;
   }
 
-  return clientEnv.tossScriptRewardedAdGroupId || "ait-ad-test-rewarded-id";
+  return clientEnv.tossScriptRewardedAdGroupId;
 }
 
 function loadFullScreenTossAd(adGroupId: string): Promise<void> {
@@ -55,7 +55,10 @@ function loadFullScreenTossAd(adGroupId: string): Promise<void> {
   });
 }
 
-function showFullScreenTossAd(adGroupId: string, purpose: TossAdPurpose): Promise<void> {
+function showFullScreenTossAd(
+  adGroupId: string,
+  purpose: TossAdPurpose,
+): Promise<void> {
   if (!showFullScreenAd.isSupported()) {
     return Promise.reject(new Error("Toss Ads show is not supported."));
   }
@@ -78,7 +81,11 @@ function showFullScreenTossAd(adGroupId: string, purpose: TossAdPurpose): Promis
           resolve();
         }
 
-        if (purpose !== "answer-result" && event.type === "dismissed" && !hasEarnedReward) {
+        if (
+          purpose !== "answer-result" &&
+          event.type === "dismissed" &&
+          !hasEarnedReward
+        ) {
           unregister();
           reject(new Error("Toss rewarded ad was dismissed before reward."));
         }

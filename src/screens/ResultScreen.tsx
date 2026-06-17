@@ -81,7 +81,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
   }
 
   const title = answerResult.isCorrect ? '정답이에요' : '아쉬워요';
-  const description = answerResult.isCorrect ? '포인트 보상 상태를 확인해 주세요.' : '광고를 보고 같은 문제에 다시 도전할 수 있어요.';
+  const description = answerResult.isCorrect ? '포인트 지급 상태를 확인하고 있어요.' : '광고를 보면 같은 문제를 다시 풀 수 있어요.';
   const isRetryLoading = actionPurpose === 'retry';
   const isScriptLoading = actionPurpose === 'script';
 
@@ -149,7 +149,7 @@ export function ResultScreen({ answerResult, onRetry, onHome }: ResultScreenProp
             disabled={actionPurpose != null}
             onClick={() => void handleRewardedAction('retry')}
           >
-            광고 보고 재도전
+            광고 보고 다시 풀기
           </Button>
         )}
         <Button
@@ -179,7 +179,7 @@ function getRewardStatusMessage(status: RewardStatus): string {
   }
 
   if (status === 'failed') {
-    return '포인트 지급을 완료하지 못했어요. 잠시 후 다시 확인하거나 고객센터에 문의해 주세요.';
+    return '포인트를 아직 지급하지 못했어요. 잠시 후 다시 확인해 주세요.';
   }
 
   return '포인트 지급 상태를 확인하고 있어요.';

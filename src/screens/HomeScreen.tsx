@@ -64,7 +64,7 @@ export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
         openToast(
           rewardStatus.rewardStatus === "failed"
             ? "포인트 지급 확인이 필요해요"
-            : "오늘 문제풀이를 완료했습니다",
+            : "오늘 문제를 다 풀었어요.",
         );
         return;
       }
@@ -121,7 +121,7 @@ export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
           center={
             <Stepper.Texts
               type="C"
-              title="정답 맞히고 보상 도전"
+              title="정답 맞히고 포인트 확인"
               description="토스 포인트 보상 기회를 확인해요."
             />
           }

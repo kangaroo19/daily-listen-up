@@ -19,7 +19,7 @@
 ## 문구 초안
 
 - 제목: `오늘의 영어 듣고 포인트 받기`
-- 설명: `짧은 영어 음성을 듣고 문제를 맞히면 토스 포인트 보상에 도전할 수 있어요.`
+- 설명: `짧은 영어 음성을 듣고 문제를 맞히면 토스 포인트 보상 기회를 확인할 수 있어요.`
 - 보조 설명: `하루에 한 문제만 제공돼요.`
 - 주요 버튼(CTA): `시작하기`
 
@@ -45,7 +45,7 @@
   - `GET /api/reward-status` 응답의 `progressStatus`는 오늘 문제 진행 상태이고, `rewardStatus`는 포인트 지급 상태다.
   - `progressStatus`가 `not_started`, `wrong`, `retry_unlocked`이면 오늘의 문제 풀이 화면으로 이동할 수 있다.
   - `progressStatus`가 `completed`이고 `rewardStatus`가 `failed`이면 홈에 머무르고 토스트로 `포인트 지급 확인이 필요해요`를 보여준다.
-  - `progressStatus`가 `completed`이고 `rewardStatus`가 `failed`가 아니면 홈에 머무르고 토스트로 `오늘 문제풀이를 완료했습니다`를 보여준다.
+  - `progressStatus`가 `completed`이고 `rewardStatus`가 `failed`가 아니면 홈에 머무르고 토스트로 `오늘 문제를 다 풀었어요.`를 보여준다.
   - 기본 상태에서는 활성화한다.
   - 요청 처리 중에는 중복 클릭을 막기 위해 비활성화한다.
 

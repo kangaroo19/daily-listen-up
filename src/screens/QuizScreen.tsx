@@ -130,7 +130,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
       const answerResult = await postAnswerResult(appSessionToken, submissionBoundary);
       onAnswerResult(answerResult, submissionBoundary.quizDate);
     } catch {
-      openToast('답안 제출을 완료하지 못했어요. 다시 시도해 주세요.');
+      openToast('답안을 보내지 못했어요. 다시 시도해 주세요.');
       setIsSubmitting(false);
     }
   }
@@ -162,8 +162,8 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
   return (
     <section className="screen quiz-screen">
       <p className="eyebrow">오늘의 문제</p>
-      <h1>정답이라고 생각하는 답을 모두 골라주세요</h1>
-      <p className="description">음성은 한 번 들을 수 있고, 선택지는 바로 고를 수 있어요.</p>
+      <h1>정답을 모두 골라주세요</h1>
+      <p className="description">음성은 한 번만 들을 수 있어요. 듣는 중에도 답을 고를 수 있어요.</p>
 
       <audio
         ref={audioRef}
@@ -184,7 +184,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
           듣기 시작
         </Button>
         <p className="supporting">
-          {isAudioPlaying ? '음성을 재생하고 있어요.' : hasStartedAudio ? '재생을 완료했어요.' : '재생은 한 번만 가능해요.'}
+          {isAudioPlaying ? '음성을 재생하고 있어요.' : hasStartedAudio ? '다 들었어요.' : '한 번만 들을 수 있어요.'}
         </p>
       </div>
 

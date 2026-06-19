@@ -6,14 +6,18 @@ import { useQuizzes } from '../hooks/useQuizzes';
 import { Quiz } from '../types/quiz';
 import { QuizEditor } from './QuizEditor';
 import { QuizList } from './QuizList';
+import { UserList } from './UserList';
 
 type AdminDashboardProps = {
   email: string | null;
 };
 
+type AdminSection = 'quiz' | 'users';
+
 export function AdminDashboard({ email }: AdminDashboardProps) {
   const { quizzes, errorMessage, isLoading } = useQuizzes();
   const progressMap = useQuizProgressMap(quizzes);
+  const [activeSection, setActiveSection] = useState<AdminSection>('quiz');
   const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
   const [saveMessage, setSaveMessage] = useState('');
 
@@ -47,15 +51,26 @@ export function AdminDashboard({ email }: AdminDashboardProps) {
           <h1>관리자</h1>
         </div>
         <nav className="nav-list">
-          <a className="nav-item active" href="#quiz">
+          <button
+            className={`nav-item ${activeSection === 'quiz' ? 'active' : ''}`}
+            onClick={() => setActiveSection('quiz')}
+            type="button"
+          >
             퀴즈 관리
-          </a>
-          <a className="nav-item" href="#audio">
+          </button>
+          <button
+            className={`nav-item ${activeSection === 'users' ? 'active' : ''}`}
+            onClick={() => setActiveSection('users')}
+            type="button"
+          >
+            유저 관리
+          </button>
+          <button className="nav-item" type="button">
             오디오
-          </a>
-          <a className="nav-item" href="#settings">
+          </button>
+          <button className="nav-item" type="button">
             설정
-          </a>
+          </button>
         </nav>
       </aside>
 
@@ -63,16 +78,18 @@ export function AdminDashboard({ email }: AdminDashboardProps) {
         <header className="dashboard-header">
           <div>
             <p className="eyebrow">운영 대시보드</p>
-            <h2>퀴즈 관리</h2>
+            <h2>{activeSection === 'quiz' ? '퀴즈 관리' : '유저 관리'}</h2>
             <p className="signed-in-user">{email}</p>
           </div>
           <div className="header-actions">
             <button className="secondary-button" onClick={() => auth && signOut(auth)} type="button">
               로그아웃
             </button>
-            <button className="primary-button" onClick={() => setSelectedQuiz(null)} type="button">
-              새 퀴즈
-            </button>
+            {activeSection === 'quiz' ? (
+              <button className="primary-button" onClick={() => setSelectedQuiz(null)} type="button">
+                새 퀴즈
+              </button>
+            ) : null}
           </div>
         </header>
 
@@ -80,34 +97,40 @@ export function AdminDashboard({ email }: AdminDashboardProps) {
           Firestore 또는 Storage 요청이 거부되면 관리자 UID allowlist를 확인하세요.
         </section>
 
-        {saveMessage ? <section className="notice-message" role="status">{saveMessage}</section> : null}
+        {activeSection === 'quiz' && saveMessage ? <section className="notice-message" role="status">{saveMessage}</section> : null}
 
-        <section className="summary-grid" aria-label="운영 요약">
-          {summaryItems.map((item) => (
-            <article className="summary-item" key={item.label}>
-              <span>{item.label}</span>
-              <strong className={`badge ${item.tone}`}>{item.value}</strong>
-            </article>
-          ))}
-        </section>
+        {activeSection === 'quiz' ? (
+          <>
+            <section className="summary-grid" aria-label="운영 요약">
+              {summaryItems.map((item) => (
+                <article className="summary-item" key={item.label}>
+                  <span>{item.label}</span>
+                  <strong className={`badge ${item.tone}`}>{item.value}</strong>
+                </article>
+              ))}
+            </section>
 
-        <section className="workspace" aria-label="퀴즈 편집 작업 영역">
-          <QuizList
-            errorMessage={errorMessage}
-            isLoading={isLoading}
-            onSelect={setSelectedQuiz}
-            progressMap={progressMap}
-            quizzes={quizzes}
-            selectedQuizDate={selectedQuiz?.quizDate ?? ''}
-          />
-          <QuizEditor
-            hasProgress={selectedQuiz ? Boolean(progressMap[selectedQuiz.quizDate]) : false}
-            onDeleted={handleDeleted}
-            onSaved={handleSaved}
-            quizzes={quizzes}
-            selectedQuiz={selectedQuiz}
-          />
-        </section>
+            <section className="workspace" aria-label="퀴즈 편집 작업 영역">
+              <QuizList
+                errorMessage={errorMessage}
+                isLoading={isLoading}
+                onSelect={setSelectedQuiz}
+                progressMap={progressMap}
+                quizzes={quizzes}
+                selectedQuizDate={selectedQuiz?.quizDate ?? ''}
+              />
+              <QuizEditor
+                hasProgress={selectedQuiz ? Boolean(progressMap[selectedQuiz.quizDate]) : false}
+                onDeleted={handleDeleted}
+                onSaved={handleSaved}
+                quizzes={quizzes}
+                selectedQuiz={selectedQuiz}
+              />
+            </section>
+          </>
+        ) : (
+          <UserList />
+        )}
       </main>
     </div>
   );

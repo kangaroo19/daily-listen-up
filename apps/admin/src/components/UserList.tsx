@@ -1,17 +1,21 @@
 import { FormEvent } from 'react';
 import { useUsers } from '../hooks/useUsers';
-import { formatLoggedInAt, maskUserKey } from '../services/users';
+import { formatLoggedInAt, maskUserKey, usersPageSize } from '../services/users';
 import { AdminUser } from '../types/user';
 
 type UserRowsProps = {
+  startIndex: number;
   users: AdminUser[];
 };
 
-function UserRows({ users }: UserRowsProps) {
+function UserRows({ startIndex, users }: UserRowsProps) {
   return (
     <>
-      {users.map((user) => (
+      {users.map((user, index) => (
         <div className="user-table-row" key={user.userId} role="row">
+          <span className="user-row-index" role="cell">
+            {startIndex + index + 1}
+          </span>
           <span role="cell">
             <strong>{user.userId}</strong>
           </span>
@@ -43,6 +47,7 @@ export function UserList() {
 
   const isSearchMode = submittedSearchText.length > 0;
   const visibleUsers = isSearchMode && searchResult ? [searchResult] : users;
+  const startIndex = isSearchMode ? 0 : pageIndex * usersPageSize;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,11 +89,12 @@ export function UserList() {
 
       <div className="user-table" role="table" aria-label="유저 목록">
         <div className="user-table-row user-table-head" role="row">
+          <span role="columnheader">번호</span>
           <span role="columnheader">userId</span>
           <span role="columnheader">userKey</span>
           <span role="columnheader">최근 로그인</span>
         </div>
-        <UserRows users={visibleUsers} />
+        <UserRows startIndex={startIndex} users={visibleUsers} />
       </div>
 
       {!isLoading && !isSearchMode && users.length === 0 ? <p className="panel-message">조회된 유저가 없습니다.</p> : null}

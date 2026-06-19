@@ -366,12 +366,17 @@ textarea {
 }
 
 .user-table-row {
-  grid-template-columns: minmax(180px, 1fr) minmax(120px, 160px) minmax(150px, 190px);
+  grid-template-columns: 56px minmax(180px, 1fr) minmax(120px, 160px) minmax(150px, 190px);
 }
 
 .user-table-row span {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.user-row-index {
+  color: #6b7280;
+  font-weight: 700;
 }
 
 .pagination-actions {

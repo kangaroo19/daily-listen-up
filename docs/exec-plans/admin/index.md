@@ -86,6 +86,8 @@
    - JSON 기반 mp3 퀴즈 등록, ElevenLabs TTS 제거
 6. 6차 묶음: 08
    - 관리자 앱 GitHub Pages 수동 배포 설정
+7. 7차 묶음: 09
+   - 관리자 유저 목록 조회 기능
 
 ## 전체 작업 목록
 
@@ -105,3 +107,5 @@
    - 파일명: `active/07-admin-json-mp3-import-remove-tts.md`
 8. 관리자 앱 GitHub Pages 수동 배포 설정
    - 파일명: `active/08-admin-github-pages-deploy.md`
+9. 관리자 유저 목록 조회 기능
+   - 파일명: `active/09-admin-user-list.md`

@@ -134,10 +134,13 @@ h4 {
 }
 
 .nav-item {
+  border: 0;
+  background: transparent;
   padding: 10px 12px;
   border-radius: 6px;
   color: #4b5563;
   text-decoration: none;
+  text-align: left;
 }
 
 .nav-item.active,
@@ -193,7 +196,8 @@ h4 {
 
 .summary-item,
 .list-panel,
-.detail-panel {
+.detail-panel,
+.user-panel {
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   background: #ffffff;
@@ -249,7 +253,8 @@ h4 {
 }
 
 .list-panel,
-.detail-panel {
+.detail-panel,
+.user-panel {
   padding: 18px;
 }
 
@@ -291,9 +296,9 @@ textarea {
   margin-top: 16px;
 }
 
-.quiz-table-row {
+.quiz-table-row,
+.user-table-row {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) 86px 112px;
   gap: 10px;
   align-items: center;
   width: 100%;
@@ -305,7 +310,12 @@ textarea {
   text-align: left;
 }
 
-.quiz-table-head {
+.quiz-table-row {
+  grid-template-columns: minmax(130px, 1fr) 86px 112px;
+}
+
+.quiz-table-head,
+.user-table-head {
   border: 0;
   color: #6b7280;
   font-size: 12px;
@@ -321,6 +331,53 @@ textarea {
   display: block;
   margin-top: 3px;
   color: #6b7280;
+}
+
+.user-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.user-search {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.user-search label {
+  display: grid;
+  gap: 7px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.user-search-actions,
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-table {
+  display: grid;
+  gap: 8px;
+}
+
+.user-table-row {
+  grid-template-columns: minmax(180px, 1fr) minmax(120px, 160px) minmax(150px, 190px);
+}
+
+.user-table-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pagination-actions {
+  justify-content: flex-end;
+  color: #6b7280;
+  font-size: 13px;
 }
 
 .form-section {
@@ -501,7 +558,13 @@ textarea {
 
   .summary-grid,
   .nav-list,
-  .quiz-table-row {
+  .quiz-table-row,
+  .user-search,
+  .user-table-row {
     grid-template-columns: 1fr;
+  }
+
+  .pagination-actions {
+    justify-content: flex-start;
   }
 }

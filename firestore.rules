@@ -11,6 +11,11 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    match /users/{userId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /userProgress/{progressId} {
       allow read: if isAdmin();
       allow write: if false;

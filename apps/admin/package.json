@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "test": "node ../../node_modules/esbuild/bin/esbuild src/validation/quizValidation.test.ts src/validation/jsonQuizImport.test.ts --bundle --platform=node --format=esm --outdir=../../.tmp/admin-validation-tests && node --test ../../.tmp/admin-validation-tests/quizValidation.test.js ../../.tmp/admin-validation-tests/jsonQuizImport.test.js",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && vite build"
   },

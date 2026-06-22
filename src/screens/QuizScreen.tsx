@@ -4,6 +4,7 @@ import { TossBannerAd } from '../components/TossBannerAd';
 import { showTossAd } from '../integrations/tossAds';
 import { getTodayQuiz, postAnswerResult, type AnswerResultResponse, type TodayQuizResponse } from '../services/apiClient';
 import { getAppSessionToken } from '../services/appSession';
+import { selectSingleChoiceId } from './quizSelection';
 
 type QuizScreenProps = {
   onAnswerResult: (result: AnswerResultResponse, quizDate: string) => void;
@@ -75,7 +76,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
     [quiz, selectedChoiceIds],
   );
 
-  const canSubmit = submissionBoundary != null && selectedChoiceIds.length > 0 && !isSubmitting;
+  const canSubmit = submissionBoundary != null && selectedChoiceIds.length === 1 && !isSubmitting;
 
   async function handleStartAudio() {
     const audio = audioRef.current;
@@ -100,9 +101,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
   }
 
   function handleToggleChoice(choiceId: string) {
-    setSelectedChoiceIds((current) =>
-      current.includes(choiceId) ? current.filter((selectedId) => selectedId !== choiceId) : [...current, choiceId],
-    );
+    setSelectedChoiceIds((current) => selectSingleChoiceId(current, choiceId));
   }
 
   function stopAudioPlayback() {
@@ -162,7 +161,7 @@ export function QuizScreen({ onAnswerResult }: QuizScreenProps) {
   return (
     <section className="screen quiz-screen">
       <p className="eyebrow">오늘의 문제</p>
-      <h1>정답을 모두 골라주세요</h1>
+      <h1>정답을 골라주세요</h1>
       <p className="description">음성은 한 번만 들을 수 있어요. 듣는 중에도 답을 고를 수 있어요.</p>
 
       <audio

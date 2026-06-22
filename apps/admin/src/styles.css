@@ -417,7 +417,8 @@ textarea {
   align-items: center;
 }
 
-.choice-row input[type='checkbox'] {
+.choice-row input[type='checkbox'],
+.choice-row input[type='radio'] {
   width: 16px;
   min-height: 16px;
   padding: 0;

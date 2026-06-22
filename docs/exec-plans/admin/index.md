@@ -88,6 +88,8 @@
    - 관리자 앱 GitHub Pages 수동 배포 설정
 7. 7차 묶음: 09
    - 관리자 유저 목록 조회 기능
+8. 8차 묶음: 10
+   - 단일 선택 퀴즈 정책에 맞춘 관리자 정답 검증
 
 ## 전체 작업 목록
 
@@ -109,3 +111,5 @@
    - 파일명: `active/08-admin-github-pages-deploy.md`
 9. 관리자 유저 목록 조회 기능
    - 파일명: `active/09-admin-user-list.md`
+10. 관리자 단일 정답 검증 반영
+    - 파일명: `active/10-admin-single-answer-validation.md`

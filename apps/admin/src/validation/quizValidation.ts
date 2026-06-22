@@ -23,8 +23,8 @@ export function validateQuizForm(form: QuizFormState, options: ValidateQuizFormO
     errors.choices = '선택지 5개를 모두 입력하세요.';
   }
 
-  if (form.correctChoiceIds.length === 0) {
-    errors.correctChoiceIds = '정답을 1개 이상 선택하세요.';
+  if (form.correctChoiceIds.length !== 1) {
+    errors.correctChoiceIds = '정답은 1개만 선택하세요.';
   } else if (form.correctChoiceIds.some((choiceId) => !choiceIds.has(choiceId))) {
     errors.correctChoiceIds = '정답은 존재하는 선택지 ID만 선택할 수 있습니다.';
   }

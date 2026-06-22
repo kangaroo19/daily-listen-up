@@ -158,12 +158,10 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
     }));
   }
 
-  function toggleCorrectChoice(choiceId: string) {
+  function selectCorrectChoice(choiceId: string) {
     setForm((current) => ({
       ...current,
-      correctChoiceIds: current.correctChoiceIds.includes(choiceId)
-        ? current.correctChoiceIds.filter((id) => id !== choiceId)
-        : [...current.correctChoiceIds, choiceId],
+      correctChoiceIds: [choiceId],
     }));
   }
 
@@ -437,8 +435,9 @@ export function QuizEditor({ hasProgress = false, onDeleted, onSaved, quizzes, s
               aria-label={`${index + 1}번 정답`}
               checked={form.correctChoiceIds.includes(choice.id)}
               disabled={hasProgress}
-              onChange={() => toggleCorrectChoice(choice.id)}
-              type="checkbox"
+              name="correct-choice"
+              onChange={() => selectCorrectChoice(choice.id)}
+              type="radio"
             />
             <span>{index + 1}</span>
             <input

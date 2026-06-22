@@ -84,8 +84,8 @@ export function parseJsonQuizImport(jsonText: string, selectedAudioFileName: str
     return { ok: false, error: 'choices의 id는 중복될 수 없습니다.' };
   }
 
-  if (!Array.isArray(quiz.correctChoiceIds) || quiz.correctChoiceIds.length === 0) {
-    return { ok: false, error: 'correctChoiceIds는 1개 이상이어야 합니다.' };
+  if (!Array.isArray(quiz.correctChoiceIds) || quiz.correctChoiceIds.length !== 1) {
+    return { ok: false, error: 'correctChoiceIds는 정답 id 1개만 포함해야 합니다.' };
   }
 
   if (quiz.correctChoiceIds.some((choiceId) => typeof choiceId !== 'string' || !choiceIds.has(choiceId))) {

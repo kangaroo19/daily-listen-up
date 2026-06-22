@@ -87,6 +87,8 @@ MVP는 홈, 문제 풀이, 결과 화면을 기준으로 구현한다.
    - TDS polish, 테스트, 빌드 검증, MVP 완료 체크
 5. 5차 묶음: 11
    - 실제 Firebase 프로젝트 연결, Secret Manager, 운영 배포 준비
+6. 6차 묶음: 12~13
+   - 배너 광고, 단일 선택 퀴즈 UI와 콘텐츠 정리
 
 ## 전체 작업 목록
 
@@ -112,3 +114,7 @@ MVP는 홈, 문제 풀이, 결과 화면을 기준으로 구현한다.
     - 파일명: `active/10-mvp-polish-test-verification.md`
 11. 실제 Firebase 운영 연결과 Secret Manager 배포 준비
     - 파일명: `active/11-firebase-release-secret-manager-setup.md`
+12. 배너 광고 추가
+    - 파일명: `active/12-banner-ad.md`
+13. 단일 선택 퀴즈 UI와 콘텐츠 정리
+    - 파일명: `active/13-single-choice-quiz-ui-and-content.md`

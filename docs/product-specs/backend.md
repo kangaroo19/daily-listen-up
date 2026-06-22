@@ -120,7 +120,7 @@
 ### `POST /api/answer-result`
 
 - 호출 시점: 사용자가 답안을 제출하고 결과 확인 전면형 광고의 `dismissed` 이벤트가 발생한 직후 호출한다.
-- 클라이언트는 `GET /api/today-quiz`에서 받은 `quizDate`와 선택 답안을 함께 전달한다.
+- 클라이언트는 `GET /api/today-quiz`에서 받은 `quizDate`와 선택 답안 목록을 함께 전달하되, MVP에서는 선택지 ID 1개만 담는다.
 - 선택 답안을 검증하고 정답/오답, `progressStatus`, `rewardStatus`를 반환한다.
 - 정답이면 `progressStatus = completed`로 기록하고 포인트 지급 흐름에 진입한다.
 - 첫 제출은 `progressStatus = not_started`에서만 허용한다.
@@ -191,7 +191,7 @@
 - `isPublished` - 타입: `boolean`, 역할: 오늘 문제 공개 여부
 - `audioStoragePath` - 타입: `string`, 역할: Firebase Storage에 저장된 오디오 파일 경로
 - `choices` - 타입: `array`, 역할: 선택지 목록. 각 항목은 선택지 ID와 문구를 포함한다
-- `correctChoiceIds` - 타입: `array<string>`, 역할: 정답 선택지 ID 목록. 서버 전용으로만 사용한다
+- `correctChoiceIds` - 타입: `array<string>`, 역할: 정답 선택지 ID 목록. 서버 전용으로만 사용하며 MVP에서는 정답 ID 1개만 담는다
 - `script` - 타입: `string`, 역할: 광고 보상 후 열람 가능한 듣기 스크립트
 - `promotionAmount` - 타입: `number`, 역할: 정답 시 지급할 토스 포인트 금액. MVP 샘플 기준은 5원이다.
 
@@ -215,7 +215,7 @@
 - `quizDate` - 타입: `string`, 역할: KST 기준 진행 날짜
 - `progressStatus` - 타입: `string`, 역할: 당일 문제 진행 상태. `not_started`, `wrong`, `retry_unlocked`, `completed` 중 하나
 - `attemptCount` - 타입: `number`, 역할: 정답 제출 시도 횟수
-- `lastSubmittedChoiceIds` - 타입: `array<string>`, 역할: 마지막으로 제출한 선택지 ID 목록
+- `lastSubmittedChoiceIds` - 타입: `array<string>`, 역할: 마지막으로 제출한 선택지 ID 목록. MVP에서는 선택지 ID 1개만 담는다
 - `isCorrect` - 타입: `boolean`, 역할: 마지막 제출 결과의 정답 여부
 - `canViewScript` - 타입: `boolean`, 역할: 보상형 광고 완료 후 스크립트 열람 가능 여부
 - `rewardStatus` - 타입: `string`, 역할: 포인트 지급 상태. `none`, `pending`, `success`, `failed` 중 하나

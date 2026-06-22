@@ -74,7 +74,7 @@ quizzes/{quizDate}
 - `isPublished` - 타입: `boolean`, 역할: 사용자 앱 공개 여부
 - `audioStoragePath` - 타입: `string`, 역할: Firebase Storage에 저장된 오디오 파일 경로
 - `choices` - 타입: `array`, 역할: 선택지 5개. 각 항목은 선택지 ID와 문구를 포함한다
-- `correctChoiceIds` - 타입: `array<string>`, 역할: 정답 선택지 ID 목록
+- `correctChoiceIds` - 타입: `array<string>`, 역할: 정답 선택지 ID 목록. MVP에서는 정답 ID 1개만 담는다
 - `script` - 타입: `string`, 역할: 광고 보상 후 열람 가능한 듣기 스크립트
 - `promotionAmount` - 타입: `number`, 역할: 정답 시 지급할 토스 포인트 금액
 
@@ -117,7 +117,7 @@ users
 - 미발행 저장도 완성된 퀴즈 저장이므로 아래 필수 검증을 모두 통과해야 한다.
 - `quizDate`는 `YYYY-MM-DD` 형식이어야 한다.
 - 선택지는 정확히 5개여야 한다.
-- 정답은 최소 1개 이상이어야 한다.
+- 정답은 정확히 1개여야 한다.
 - `correctChoiceIds`는 `choices`에 존재하는 선택지 ID만 포함해야 한다.
 - 오디오 파일은 mp3만 허용한다.
 - `promotionAmount`는 양수 정수여야 한다.

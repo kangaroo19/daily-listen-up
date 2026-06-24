@@ -38,9 +38,13 @@ export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
       });
 
       let todayQuiz;
+      let rewardStatus;
 
       try {
-        todayQuiz = await getCheckTodayQuiz(appSession.appSessionToken);
+        [todayQuiz, rewardStatus] = await Promise.all([
+          getCheckTodayQuiz(appSession.appSessionToken),
+          getRewardStatus(appSession.appSessionToken),
+        ]);
       } catch {
         openToast(statusFailureMessage);
         return;
@@ -48,15 +52,6 @@ export function HomeScreen({ onEnterQuiz, onAnswerResult }: HomeScreenProps) {
 
       if (!todayQuiz.hasTodayQuiz) {
         openToast("오늘의 문제가 아직 준비되지 않았어요.");
-        return;
-      }
-
-      let rewardStatus;
-
-      try {
-        rewardStatus = await getRewardStatus(appSession.appSessionToken);
-      } catch {
-        openToast(statusFailureMessage);
         return;
       }
 

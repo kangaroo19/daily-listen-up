@@ -15,6 +15,10 @@ export function getTossBannerAdGroupId(): string {
 }
 
 export function initializeTossBannerAds(): Promise<boolean> {
+  if (clientEnv.skipAnswerResultInterstitial) {
+    return Promise.resolve(false);
+  }
+
   if (initializationState === "initialized") {
     return Promise.resolve(true);
   }
@@ -59,6 +63,10 @@ export function initializeTossBannerAds(): Promise<boolean> {
 export async function attachTossBannerAd(
   target: HTMLElement,
 ): Promise<TossAdsAttachBannerResult | null> {
+  if (clientEnv.skipAnswerResultInterstitial) {
+    return null;
+  }
+
   if (!TossAds.attachBanner.isSupported()) {
     return null;
   }
